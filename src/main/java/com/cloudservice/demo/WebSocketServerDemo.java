@@ -15,13 +15,16 @@ package com.cloudservice.demo;
  * @Description: TODO
  * <p>〈功能详细描述〉</p>
  *
- * <pre>
- * 〈举例说明〉
- * </pre>
  * @ClassName WebSocketServerDemo
  * @author 陈晨(96421955@163.com)
  * @date 2020/5/6 21:34
  */
 public class WebSocketServerDemo {
 
+    public void init(int port) {
+
+    }
+
 }
+
+
