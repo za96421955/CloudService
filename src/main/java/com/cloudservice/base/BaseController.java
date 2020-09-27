@@ -1,4 +1,4 @@
-package com.cloudservice.trade.controller;
+package com.cloudservice.base;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

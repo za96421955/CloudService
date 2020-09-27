@@ -1,6 +1,7 @@
 package com.cloudservice.trade.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.cloudservice.base.BaseController;
 import com.cloudservice.base.Result;
 import com.cloudservice.trade.huobi.enums.*;
 import com.cloudservice.trade.huobi.model.contract.Account;

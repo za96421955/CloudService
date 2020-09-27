@@ -28,7 +28,7 @@ public class HedgeTrackScheduler extends BaseService {
     @Autowired
     private HedgeServiceFactory hedgeServiceFactory;
 
-    @Scheduled(cron = "0/5 * * * * ?")
+//    @Scheduled(cron = "0/5 * * * * ?")
     public void run() {
         for (Track track : TradeContext.getTrackList()) {
             if (track == null) {

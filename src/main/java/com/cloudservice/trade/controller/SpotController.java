@@ -1,5 +1,6 @@
 package com.cloudservice.trade.controller;
 
+import com.cloudservice.base.BaseController;
 import com.cloudservice.trade.huobi.enums.*;
 import com.cloudservice.trade.huobi.model.spot.Depth;
 import com.cloudservice.trade.huobi.model.spot.Kline;

@@ -1,5 +1,6 @@
 package com.cloudservice.trade.controller;
 
+import com.cloudservice.base.BaseController;
 import com.cloudservice.base.Result;
 import com.cloudservice.trade.analyse.context.TradeContext;
 import com.cloudservice.trade.analyse.service.trade.OrderService;

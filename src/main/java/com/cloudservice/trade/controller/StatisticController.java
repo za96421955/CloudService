@@ -1,6 +1,7 @@
 package com.cloudservice.trade.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.cloudservice.base.BaseController;
 import com.cloudservice.trade.analyse.model.statistic.KlineRange;
 import com.cloudservice.trade.analyse.model.statistic.PullTrack;
 import com.cloudservice.trade.analyse.service.trade.StatisticService;
