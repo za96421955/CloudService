@@ -1,14 +1,14 @@
 package com.cloudservice.trade.analyse.service.trade.impl.analyse;
 
-import com.cloudservice.trade.analyse.context.TradeContext;
+import com.cloudservice.trade.analyse.context.AnalyseContext;
+import com.cloudservice.trade.huobi.model.spot.Kline;
 import com.cloudservice.trade.analyse.model.trade.Analyse;
 import com.cloudservice.trade.analyse.model.trade.Prophecy;
-import com.cloudservice.trade.analyse.thread.ProphecyMachine;
 import com.cloudservice.trade.huobi.enums.ContractDirectionEnum;
 import com.cloudservice.trade.huobi.enums.PeriodEnum;
 import com.cloudservice.trade.huobi.enums.SymbolUSDTEnum;
-import com.cloudservice.trade.huobi.model.spot.Kline;
 import com.cloudservice.trade.huobi.service.spot.SpotMarketService;
+import com.cloudservice.trade.analyse.thread.ProphecyMachine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -74,7 +74,7 @@ public class CycleAnalyseServiceImpl extends AbstractAnalyseServiceImpl {
             analyse.setTriggerLoss(analyse.getLoss().add(prophecy.getPeriod().getAdjustmentPrice().multiply(BigDecimal.valueOf(3))));
         }
         // 逆向, 则购买方向取反
-        if (!TradeContext.getDirectionSwitch()) {
+        if (!AnalyseContext.getDirectionSwitch()) {
             analyse.negate();
         }
         return analyse;

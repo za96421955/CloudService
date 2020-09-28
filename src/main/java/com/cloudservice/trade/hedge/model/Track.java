@@ -1,12 +1,9 @@
 package com.cloudservice.trade.hedge.model;
 
-import com.cloudservice.trade.analyse.context.TradeContext;
+import com.cloudservice.trade.analyse.context.AnalyseContext;
 import com.cloudservice.trade.analyse.model.trade.Analyse;
 import com.cloudservice.trade.analyse.service.trade.TradeService;
-import com.cloudservice.trade.huobi.enums.ContractCodeEnum;
-import com.cloudservice.trade.huobi.enums.ContractDirectionEnum;
-import com.cloudservice.trade.huobi.enums.ContractOffsetEnum;
-import com.cloudservice.trade.huobi.enums.SymbolEnum;
+import com.cloudservice.trade.huobi.enums.*;
 import com.cloudservice.trade.huobi.model.contract.Order;
 import lombok.Getter;
 import lombok.Setter;
@@ -55,7 +52,7 @@ public class Track implements Serializable {
 
     public Analyse getLastAnalyse() {
         if (lastAnalyse == null) {
-            lastAnalyse = TradeContext.getAnalyse();
+            lastAnalyse = AnalyseContext.getAnalyse();
         }
         return lastAnalyse;
     }

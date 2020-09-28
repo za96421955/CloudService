@@ -6,7 +6,8 @@ import com.cloudservice.base.Result;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.hedge.service.HedgeService;
 import com.cloudservice.trade.huobi.enums.ContractDirectionEnum;
-import com.cloudservice.trade.huobi.enums.SymbolUSDTEnum;
+import com.cloudservice.trade.huobi.enums.ContractTypeEnum;
+import com.cloudservice.trade.huobi.enums.SymbolEnum;
 import com.cloudservice.trade.huobi.model.contract.Order;
 import com.cloudservice.trade.huobi.model.contract.Position;
 import com.cloudservice.trade.huobi.model.spot.Kline;
@@ -49,7 +50,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
             logger.info("[{}] track={}, result={}, 开空下单", LOG_MARK, track, result);
         }
         if (!track.getHedgeConfig().isStopTrade() && (buy == null || sell == null)) {
-            return Result.buildFail("开多/开空, 无持仓");
+            return Result.buildFail("交易开启 & (开多 || 开空)无持仓, 持仓检查不通过");
         }
         // 0: 多, 1: 空
         return Result.buildSuccess(buy, sell);
@@ -63,7 +64,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      * @date 2020/9/26 14:43
      * @param positionList, direction
      **/
-    protected Position getPosition(List<Position> positionList, ContractDirectionEnum direction) {
+    private Position getPosition(List<Position> positionList, ContractDirectionEnum direction) {
         for (Position position : positionList) {
             if (position == null) {
                 continue;
@@ -80,16 +81,22 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         if (track == null) {
             return;
         }
-        // 2, 开多平仓检查
-        Result result = this.closeCheck(track, buy
-                , this.calculateIncomeMultiple(track, sell)
-                , this.calculateCloseLossVolume(track, sell));
-        logger.debug("[{}] track={}, result={}, Buy - 开多平仓检查", LOG_MARK, track, result);
-        // 3, 开空平仓检查
-        result = this.closeCheck(track, sell
-                , this.calculateIncomeMultiple(track, buy)
-                , this.calculateCloseLossVolume(track, buy));
-        logger.debug("[{}] track={}, result={}, Sell - 开空平仓检查", LOG_MARK, track, result);
+        /**
+         * 单项止损开仓, 存在极高爆仓风险
+         * 因为basis张止损而承担如此风险, 非明智之举
+         */
+        // 1.1, 开多止盈平仓
+        Result result = this.profitClose(track, buy
+                , this.calculateIncomeMultiple(track, buy, sell)
+                , this.calculateCloseLossVolume(sell));
+        logger.debug("[{}] track={}, result={}, Buy - 开多止盈平仓", LOG_MARK, track, result);
+        // TODO 1.2开多止损开仓
+        // 2.1, 开空止盈平仓
+        result = this.profitClose(track, sell
+                , this.calculateIncomeMultiple(track, sell, buy)
+                , this.calculateCloseLossVolume(buy));
+        logger.debug("[{}] track={}, result={}, Sell - 开空止盈平仓", LOG_MARK, track, result);
+        // TODO 2.2开空止损开仓
     }
 
     /**
@@ -103,11 +110,17 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      * @date 2020/9/26 15:00
      * @param track, position
      **/
-    protected BigDecimal calculateIncomeMultiple(Track track, Position position) {
+    private BigDecimal calculateIncomeMultiple(Track track, Position position, Position reversePosition) {
         if (position == null) {
             return BigDecimal.ONE;
         }
-        BigDecimal incomeMultiple = position.getVolume()
+        BigDecimal volume;
+        if (reversePosition == null) {
+            volume = position.getVolume();
+        } else {
+            volume = reversePosition.getVolume();
+        }
+        BigDecimal incomeMultiple = volume
                 .divide(BigDecimal.valueOf(track.getHedgeConfig().getBasisVolume()), new MathContext(2))
                 .multiply(track.getHedgeConfig().getProfitBasisMultiple());
         if (incomeMultiple.compareTo(BigDecimal.ONE) < 0) {
@@ -122,17 +135,17 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      *
      * @author 陈晨
      * @date 2020/9/26 15:03
-     * @param track, position
+     * @param position
      **/
-    protected long calculateCloseLossVolume(Track track, Position position) {
-        if (position != null) {
-            return position.getVolume().longValue();
+    private long calculateCloseLossVolume(Position position) {
+        if (position == null) {
+            return 0;
         }
-        return track.getHedgeConfig().getBasisVolume();
+        return position.getVolume().longValue();
     }
 
     /**
-     * @description 平仓检查
+     * @description 止盈平仓
      * <p>〈功能详细描述〉</p>
      *
      * @author 陈晨
@@ -142,7 +155,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      * @param incomeMultiple    止盈收益倍数
      * @param lossVolume        止损追仓张数
      **/
-    protected Result closeCheck(Track track, Position position, BigDecimal incomeMultiple, long lossVolume) {
+    private Result profitClose(Track track, Position position, BigDecimal incomeMultiple, long lossVolume) {
         if (track == null || position == null) {
             return Result.buildFail("args empty");
         }
@@ -163,82 +176,15 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
     }
 
     /**
-     * @description 平仓下单
-     * <p>〈功能详细描述〉</p>
-     *
-     * @author 陈晨
-     * @date 2020/9/24 16:46
-     **/
-    protected Result closeOrder(Track track, Position position, long lossVolume) {
-        // 1, 止盈平仓（所有张）
-        Result result = this.close(track, position);
-        logger.info("[{}] track={}, direction={}, price={}, result={}, 止盈平仓（所有, {}张）"
-                , LOG_MARK, track, position.getDirection(), position.getCostHold()
-                , result, position.getVolume());
-        if (!result.success()) {
-            return result;
-        }
-        // 订单完成检查
-        if (!this.orderCompleteCheck(track, result, 0)) {
-            logger.info("[{}] track={}, direction={}, 止盈平仓检查, 超时", LOG_MARK, track, position.getDirection());
-            return Result.buildFail("止盈平仓检查, 超时");
-        }
-        // 停止交易, 则不再向下追仓
-        if (this.isStopTrade(track, position)) {
-            return Result.buildSuccess();
-        }
-
-        // 2, 同向开仓（basis张）
-        result = this.open(track, ContractDirectionEnum.get(position.getDirection()), track.getHedgeConfig().getBasisVolume());
-        logger.info("[{}] track={}, direction={}, result={}, 同向开仓（{}}张）"
-                , LOG_MARK, track, position.getDirection(), result, track.getHedgeConfig().getBasisVolume());
-        if (!result.success()) {
-            return result;
-        }
-        // 订单完成检查
-        if (!this.orderCompleteCheck(track, result, 0)) {
-            logger.info("[{}] track={}, direction={}, 同向开仓检查, 超时", LOG_MARK, track, position.getDirection());
-            return Result.buildFail("同向开仓检查, 超时");
-        }
-
-        // 3, 逆向止损加仓（lossVolume张）
-        result = this.open(track, ContractDirectionEnum.get(position.getDirection()).getNegate(), lossVolume);
-        logger.info("[{}] track={}, direction={}, result={}, 逆向止损加仓（{}张）"
-                , LOG_MARK, track, ContractDirectionEnum.get(position.getDirection()).getNegate()
-                , result, lossVolume);
-        return Result.buildSuccess();
-    }
-
-    /**
-     * @description 订单完成检查
-     * <p>〈功能详细描述〉</p>
-     *
-     * @author 陈晨
-     * @date 2020/9/24 20:34
-     **/
-    protected boolean orderCompleteCheck(Track track, Result result, int count) {
-        if (count > track.getHedgeConfig().getTimeout()) {
-            return false;
-        }
-        String orderId = JSONObject.parseObject(result.getData().toString()).getLong("order_id") + "";
-        Order order = this.getOrderInfo(track, orderId);
-        if (order != null && order.getStatus() == 6) {
-            return true;
-        }
-        this.sleep(1000);
-        return this.orderCompleteCheck(track, result, ++count);
-    }
-
-    /**
      * @description 判断是否可以平仓
      * <p>〈功能详细描述〉</p>
      *
      * @author 陈晨
      * @date 2020/9/24 15:45
      **/
-    protected boolean isClose(Track track, Position position, BigDecimal incomeMultiple, BigDecimal lastIncomePrice) {
+    private boolean isClose(Track track, Position position, BigDecimal incomeMultiple, BigDecimal lastIncomePrice) {
         // 获取现价信息
-        Kline kline = spotMarketService.getKlineCurr(SymbolUSDTEnum.getUSDT(track.getSymbol().getValue()));
+        Kline kline = this.getKlineCurr(track.getSymbol(), ContractTypeEnum.THIS_WEEK);
         if (kline == null) {
             return false;
         }
@@ -267,7 +213,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      * @author 陈晨
      * @date 2020/9/24 15:35
      **/
-    protected BigDecimal getIncomePrice(Position position, BigDecimal currPrice) {
+    private BigDecimal getIncomePrice(Position position, BigDecimal currPrice) {
         if (ContractDirectionEnum.BUY.getValue().equals(position.getDirection())) {
             // 开多收益: 当前价 > 持仓价 + 收益价
             return currPrice.subtract(position.getCostHold());
@@ -275,6 +221,87 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
             // 开空收益: 当前价 < 持仓价 - 收益价
             return position.getCostHold().subtract(currPrice);
         }
+    }
+
+    /**
+     * @description 平仓下单
+     * <p>〈功能详细描述〉</p>
+     *
+     * @author 陈晨
+     * @date 2020/9/24 16:46
+     **/
+    private Result closeOrder(Track track, Position position, long lossVolume) {
+        // 1, 止盈平仓（所有张）
+        Result result = this.close(track, position);
+        logger.info("[{}] track={}, direction={}, price={}, result={}, 止盈平仓（所有, {}张）"
+                , LOG_MARK, track, position.getDirection(), position.getCostHold()
+                , result, position.getVolume());
+        if (!result.success()) {
+            return result;
+        }
+        // 订单完成检查
+        if (!this.orderCompleteCheck(track, result, 0)) {
+            logger.info("[{}] track={}, direction={}, 止盈平仓检查, 超时", LOG_MARK, track, position.getDirection());
+            return Result.buildFail("止盈平仓检查, 超时");
+        }
+
+        // 2, 未停止交易, 则止盈同向新开仓
+        if (!this.isStopTrade(track, position)) {
+            // 2, 同向开仓（basis张）
+            result = this.open(track, ContractDirectionEnum.get(position.getDirection()), track.getHedgeConfig().getBasisVolume());
+            logger.info("[{}] track={}, direction={}, result={}, 同向开仓（{}}张）"
+                    , LOG_MARK, track, position.getDirection(), result, track.getHedgeConfig().getBasisVolume());
+            if (!result.success()) {
+                return result;
+            }
+            // 订单完成检查
+            if (!this.orderCompleteCheck(track, result, 0)) {
+                logger.info("[{}] track={}, direction={}, 同向开仓检查, 超时", LOG_MARK, track, position.getDirection());
+                return Result.buildFail("同向开仓检查, 超时");
+            }
+        }
+
+        // 3, 逆向止损加仓（lossVolume张）
+        if (lossVolume > 0) {
+            result = this.open(track, ContractDirectionEnum.get(position.getDirection()).getNegate(), lossVolume);
+            logger.info("[{}] track={}, direction={}, result={}, 逆向止损加仓（{}张）"
+                    , LOG_MARK, track, ContractDirectionEnum.get(position.getDirection()).getNegate()
+                    , result, lossVolume);
+        }
+        return Result.buildSuccess();
+    }
+
+    /**
+     * @description 订单完成检查
+     * <p>〈功能详细描述〉</p>
+     *
+     * @author 陈晨
+     * @date 2020/9/24 20:34
+     **/
+    private boolean orderCompleteCheck(Track track, Result result, int count) {
+        if (count > track.getHedgeConfig().getTimeout()) {
+            return false;
+        }
+        String orderId = JSONObject.parseObject(result.getData().toString()).getLong("order_id") + "";
+        Order order = this.getOrderInfo(track, orderId);
+        if (order != null && order.getStatus() == 6) {
+            return true;
+        }
+        this.sleep(1000);
+        return this.orderCompleteCheck(track, result, ++count);
+    }
+
+    /**
+     * @description 止损开仓
+     * <p>〈功能详细描述〉</p>
+     *
+     * @author 陈晨
+     * @date 2020/9/28 17:58
+     * @param track, position, incomeMultiple, lossVolume
+     **/
+    private Result lossOpen(Track track, Position position, BigDecimal incomeMultiple, long lossVolume) {
+
+        return Result.buildSuccess();
     }
 
     /**
@@ -286,6 +313,16 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      * @param track
      **/
     protected abstract List<Position> getPositionList(Track track);
+
+    /**
+     * @description 获取当前K线信息
+     * <p>〈功能详细描述〉</p>
+     *
+     * @author 陈晨
+     * @date 2020/9/28 17:46
+     * @param symbol, contractType
+     **/
+    protected abstract Kline getKlineCurr(SymbolEnum symbol, ContractTypeEnum contractType);
 
     /**
      * @description 开仓

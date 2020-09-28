@@ -1,6 +1,12 @@
 package com.cloudservice.trade.hedge.context;
 
-import java.math.BigDecimal;
+import com.cloudservice.trade.hedge.model.Track;
+import com.cloudservice.trade.huobi.enums.SymbolEnum;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 上下文
@@ -14,14 +20,22 @@ public final class HedgeContext {
 
     private HedgeContext() {}
 
-//    /** 停止交易 */
-//    private static boolean stopTrade = false;
-//    public static boolean isStopTrade() {
-//        return stopTrade;
-//    }
-//    public static void setStopTrade(boolean stopTrade) {
-//        HedgeContext.stopTrade = stopTrade;
-//    }
+    /** 订单追踪 */
+    private static final Map<String, Track> trackMap = new HashMap<>();
+    public synchronized static Track getTrack(String access, SymbolEnum symbol, String hedgeType) {
+        String key = access + "-" + symbol.getValue() + "-" + hedgeType;
+        Track track = trackMap.get(key);
+        if (track == null) {
+            trackMap.put(key, new Track(access, null));
+            track = trackMap.get(key);
+            track.setSymbol(symbol);
+            track.getHedgeConfig().setHedgeType(hedgeType);
+        }
+        return track;
+    }
+    public static List<Track> getTrackList() {
+        return new ArrayList<>(trackMap.values());
+    }
 
 }
 

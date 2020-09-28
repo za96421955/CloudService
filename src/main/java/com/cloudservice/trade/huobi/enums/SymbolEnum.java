@@ -1,7 +1,7 @@
 package com.cloudservice.trade.huobi.enums;
 
 /**
- * 交易对
+ * 交易对: 合约
  * <p>〈功能详细描述〉</p>
  *
  * @author 陈晨

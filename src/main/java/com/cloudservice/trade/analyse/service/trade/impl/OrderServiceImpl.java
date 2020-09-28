@@ -3,16 +3,16 @@ package com.cloudservice.trade.analyse.service.trade.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.cloudservice.base.BaseService;
 import com.cloudservice.base.Result;
-import com.cloudservice.trade.analyse.context.TradeContext;
-import com.cloudservice.trade.analyse.model.trade.Analyse;
-import com.cloudservice.trade.analyse.service.trade.OrderService;
 import com.cloudservice.trade.huobi.enums.*;
+import com.cloudservice.trade.analyse.context.AnalyseContext;
 import com.cloudservice.trade.huobi.model.contract.Account;
 import com.cloudservice.trade.huobi.model.contract.Position;
 import com.cloudservice.trade.huobi.model.spot.Kline;
+import com.cloudservice.trade.analyse.model.trade.Analyse;
 import com.cloudservice.trade.huobi.service.contract.ContractAccountService;
 import com.cloudservice.trade.huobi.service.contract.ContractTradeService;
 import com.cloudservice.trade.huobi.service.spot.SpotMarketService;
+import com.cloudservice.trade.analyse.service.trade.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -105,8 +105,8 @@ public class OrderServiceImpl extends BaseService implements OrderService {
         // 记录下单信息
         if (result != null && result.success()) {
             String orderId = JSONObject.parseObject(result.getData().toString()).getLong("order_id") + "";
-            TradeContext.getTrack(access).setLastOrderId(orderId);
-            TradeContext.getTrack(access).setLastOpenTime(System.currentTimeMillis());
+            AnalyseContext.getTrack(access).setLastOrderId(orderId);
+            AnalyseContext.getTrack(access).setLastOpenTime(System.currentTimeMillis());
         }
         return result;
     }

@@ -2,11 +2,11 @@ package com.cloudservice.trade.analyse.thread;
 
 import com.cloudservice.base.BaseService;
 import com.cloudservice.base.Result;
-import com.cloudservice.trade.analyse.context.TradeContext;
-import com.cloudservice.trade.analyse.service.trade.AnalyseServiceFactory;
-import com.cloudservice.trade.analyse.service.trade.TradeService;
+import com.cloudservice.trade.analyse.context.AnalyseContext;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.huobi.enums.SymbolUSDTEnum;
+import com.cloudservice.trade.analyse.service.trade.AnalyseServiceFactory;
+import com.cloudservice.trade.analyse.service.trade.TradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,18 +29,18 @@ public class OpenScheduler extends BaseService {
     @Autowired
     private TradeService tradeService;
 
-//    @Scheduled(cron = "59 0/1 * * * ?")
+    //    @Scheduled(cron = "59 0/1 * * * ?")
     public void run() {
         logger.info("[现价分析] ===============================");
         try {
-            TradeContext.setAnalyse(analyseServiceFactory.getCurr().getAnalyse(SymbolUSDTEnum.ETH_USDT));
-            logger.info("[现价分析] analyse={}", TradeContext.getAnalyse());
+            AnalyseContext.setAnalyse(analyseServiceFactory.getCurr().getAnalyse(SymbolUSDTEnum.ETH_USDT));
+            logger.info("[现价分析] analyse={}", AnalyseContext.getAnalyse());
         } catch (Exception e) {
             logger.error("[现价分析] 异常, {}", e.getMessage(), e);
         }
 
         logger.info("[开仓] ===============================");
-        for (Track track : TradeContext.getTrackList()) {
+        for (Track track : AnalyseContext.getTrackList()) {
             if (track == null || !track.isOpenAllow()) {
                 continue;
             }

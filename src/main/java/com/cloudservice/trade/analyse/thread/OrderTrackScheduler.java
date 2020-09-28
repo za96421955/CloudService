@@ -2,9 +2,9 @@ package com.cloudservice.trade.analyse.thread;
 
 import com.cloudservice.base.BaseService;
 import com.cloudservice.base.Result;
-import com.cloudservice.trade.analyse.context.TradeContext;
-import com.cloudservice.trade.analyse.service.trade.TradeService;
+import com.cloudservice.trade.analyse.context.AnalyseContext;
 import com.cloudservice.trade.hedge.model.Track;
+import com.cloudservice.trade.analyse.service.trade.TradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,10 +25,10 @@ public class OrderTrackScheduler extends BaseService {
     @Autowired
     private TradeService tradeService;
 
-//    @Scheduled(cron = "0/5 * * * * ?")
+    //    @Scheduled(cron = "0/5 * * * * ?")
     public void run() {
 //        logger.info("[订单追踪] ===============================");
-        for (Track track : TradeContext.getTrackList()) {
+        for (Track track : AnalyseContext.getTrackList()) {
             if (track == null) {
                 continue;
             }

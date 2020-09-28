@@ -2,7 +2,7 @@ package com.cloudservice.trade.hedge.thread;
 
 import com.cloudservice.base.BaseService;
 import com.cloudservice.base.Result;
-import com.cloudservice.trade.analyse.context.TradeContext;
+import com.cloudservice.trade.hedge.context.HedgeContext;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.hedge.service.HedgeService;
 import com.cloudservice.trade.hedge.service.HedgeServiceFactory;
@@ -28,9 +28,9 @@ public class HedgeTrackScheduler extends BaseService {
     @Autowired
     private HedgeServiceFactory hedgeServiceFactory;
 
-//    @Scheduled(cron = "0/5 * * * * ?")
+    @Scheduled(cron = "0/5 * * * * ?")
     public void run() {
-        for (Track track : TradeContext.getTrackList()) {
+        for (Track track : HedgeContext.getTrackList()) {
             if (track == null) {
                 continue;
             }

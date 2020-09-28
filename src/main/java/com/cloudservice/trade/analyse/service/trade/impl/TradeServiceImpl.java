@@ -3,7 +3,7 @@ package com.cloudservice.trade.analyse.service.trade.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.cloudservice.base.BaseService;
 import com.cloudservice.base.Result;
-import com.cloudservice.trade.analyse.context.TradeContext;
+import com.cloudservice.trade.analyse.context.AnalyseContext;
 import com.cloudservice.trade.analyse.model.trade.Analyse;
 import com.cloudservice.trade.analyse.service.trade.OrderService;
 import com.cloudservice.trade.analyse.service.trade.TradeService;
@@ -88,7 +88,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
     @Override
     public Result orderOpen(Track track) {
         // 获取现价分析信息
-        Analyse analyse = TradeContext.getAnalyse();
+        Analyse analyse = AnalyseContext.getAnalyse();
         if (analyse == null) {
             return Result.buildFail("当前分析数据获取失败, 不建议买入");
         }

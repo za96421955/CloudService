@@ -3,7 +3,7 @@ package com.cloudservice.trade.huobi.enums;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * 交易对
+ * 交易对: 现货
  * <p>〈功能详细描述〉</p>
  *
  * @author 陈晨

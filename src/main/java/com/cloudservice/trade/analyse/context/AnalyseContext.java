@@ -16,9 +16,9 @@ import java.util.Map;
  * @version 1.0
  * @date 2020/9/11
  */
-public final class TradeContext {
+public final class AnalyseContext {
 
-    private TradeContext() {}
+    private AnalyseContext() {}
 
     /** 方向切换, 默认正向 */
     // TODO 逆向
@@ -27,7 +27,7 @@ public final class TradeContext {
         return directionSwitch;
     }
     public static void setDirectionSwitch(boolean directionSwitch) {
-        TradeContext.directionSwitch = directionSwitch;
+        AnalyseContext.directionSwitch = directionSwitch;
     }
 
     /** 限价分析 */
@@ -36,7 +36,7 @@ public final class TradeContext {
         return analyse;
     }
     public static void setAnalyse(Analyse analyse) {
-        TradeContext.analyse = analyse;
+        AnalyseContext.analyse = analyse;
     }
 
     /** 订单追踪 */
