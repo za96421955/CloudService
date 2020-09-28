@@ -1,5 +1,7 @@
 package com.cloudservice.trade.hedge.model;
 
+import com.alibaba.fastjson.JSONObject;
+import com.cloudservice.base.Jsonable;
 import com.cloudservice.trade.analyse.context.AnalyseContext;
 import com.cloudservice.trade.analyse.model.trade.Analyse;
 import com.cloudservice.trade.analyse.service.trade.TradeService;
@@ -21,7 +23,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
-public class Track implements Serializable {
+public class Track implements Serializable, Jsonable<Track> {
     private static final long serialVersionUID = 1835677160307123550L;
 
     private String access;
@@ -147,6 +149,16 @@ public class Track implements Serializable {
                 ", symbol=" + symbol +
                 ", hedgeConfig=" + hedgeConfig +
                 '}';
+    }
+
+    @Override
+    public JSONObject toJson() {
+        return JSONObject.parseObject(JSONObject.toJSONString(this));
+    }
+
+    @Override
+    public Track fromJson(String json) {
+        return JSONObject.parseObject(json, this.getClass());
     }
 
 }

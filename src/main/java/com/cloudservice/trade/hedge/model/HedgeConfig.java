@@ -1,5 +1,7 @@
 package com.cloudservice.trade.hedge.model;
 
+import com.alibaba.fastjson.JSONObject;
+import com.cloudservice.base.Jsonable;
 import com.cloudservice.trade.hedge.service.HedgeServiceFactory;
 import com.cloudservice.trade.huobi.enums.ContractLeverRateEnum;
 import lombok.Getter;
@@ -20,7 +22,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @ToString
-public class HedgeConfig implements Serializable {
+public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     private static final long serialVersionUID = -4336975265204074693L;
 
     /** 对冲合约类型 */
@@ -96,6 +98,16 @@ public class HedgeConfig implements Serializable {
     public HedgeConfig setStopTrade(boolean stopTrade) {
         this.stopTrade = stopTrade;
         return this;
+    }
+
+    @Override
+    public JSONObject toJson() {
+        return JSONObject.parseObject(JSONObject.toJSONString(this));
+    }
+
+    @Override
+    public HedgeConfig fromJson(String json) {
+        return JSONObject.parseObject(json, this.getClass());
     }
 
 }
