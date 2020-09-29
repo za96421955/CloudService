@@ -1,7 +1,7 @@
 package com.cloudservice.plat.service.strategys.x20;
 
 import com.cloudservice.plat.enums.StrategyTypeEnum;
-import com.cloudservice.plat.service.strategys.HedgeStrategyAPI;
+import com.cloudservice.plat.service.strategys.StrategyAPI;
 import com.cloudservice.trade.hedge.model.HedgeConfig;
 import com.cloudservice.trade.huobi.enums.ContractLeverRateEnum;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.math.BigDecimal;
  * @date 2020/9/29
  */
 @Service
-public class HedgeStrategyFixedBasisSteady implements HedgeStrategyAPI {
+public class HedgeStrategyFixedBasisSteady implements StrategyAPI<HedgeConfig> {
 
     @Override
     public HedgeConfig getStrategy() {

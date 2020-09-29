@@ -1,6 +1,5 @@
 package com.cloudservice.plat.service;
 
-import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.trade.hedge.model.HedgeConfig;
 
 /**

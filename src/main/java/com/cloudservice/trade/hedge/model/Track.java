@@ -2,7 +2,6 @@ package com.cloudservice.trade.hedge.model;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cloudservice.base.Jsonable;
-import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.trade.huobi.enums.ContractCodeEnum;
 import com.cloudservice.trade.huobi.enums.SymbolEnum;
 import lombok.Getter;
@@ -31,7 +30,7 @@ public class Track implements Serializable, Jsonable<Track> {
     /** 停止交易 */
     private boolean stopTrade = false;
     /** 策略配置 */
-    private HedgeConfig hedgeConfig = HedgeConfig.initDefault();
+    private HedgeConfig hedgeConfig;
 
     public Track() {}
 

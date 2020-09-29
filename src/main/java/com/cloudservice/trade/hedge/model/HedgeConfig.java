@@ -56,6 +56,8 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     /** 超时时间, 秒 */
     private int timeout;
 
+    public HedgeConfig() {}
+
     public HedgeConfig(StrategyTypeEnum strategyType) {
         this.strategyType = strategyType;
     }

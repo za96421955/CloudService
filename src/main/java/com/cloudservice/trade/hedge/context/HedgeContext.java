@@ -29,7 +29,7 @@ public final class HedgeContext {
             trackMap.put(key, new Track(access, null));
             track = trackMap.get(key);
             track.setSymbol(symbol);
-            track.getHedgeConfig().setHedgeType(hedgeType);
+            track.setHedgeType(hedgeType);
         }
         return track;
     }

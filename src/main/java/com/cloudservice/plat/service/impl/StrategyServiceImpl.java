@@ -2,16 +2,13 @@ package com.cloudservice.plat.service.impl;
 
 import com.cloudservice.base.BaseService;
 import com.cloudservice.plat.context.PlatContext;
-import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.plat.service.FileService;
 import com.cloudservice.plat.service.StrategyService;
-import com.cloudservice.plat.service.strategys.HedgeStrategyAPI;
+import com.cloudservice.plat.service.strategys.StrategyAPI;
 import com.cloudservice.trade.hedge.model.HedgeConfig;
-import com.cloudservice.trade.huobi.enums.ContractLeverRateEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -28,11 +25,11 @@ public class StrategyServiceImpl extends BaseService implements StrategyService 
     @Autowired
     private FileService fileService;
     @Autowired
-    private List<HedgeStrategyAPI> hedgeStrategyAPIList;
+    private List<StrategyAPI<HedgeConfig>> strategyAPIList;
 
     @Override
     public void initHedgeStrategy() {
-        for (HedgeStrategyAPI api : hedgeStrategyAPIList) {
+        for (StrategyAPI<HedgeConfig> api : strategyAPIList) {
             this.recordHedgeStrategy(api.getStrategy());
         }
     }

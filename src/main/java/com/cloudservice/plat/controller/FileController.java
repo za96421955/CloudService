@@ -2,6 +2,8 @@ package com.cloudservice.plat.controller;
 
 import com.cloudservice.base.BaseController;
 import com.cloudservice.base.Result;
+import com.cloudservice.plat.context.PlatContext;
+import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.plat.service.FileService;
 import com.cloudservice.trade.hedge.model.HedgeConfig;
 import com.cloudservice.trade.hedge.model.Track;
@@ -36,7 +38,7 @@ public class FileController extends BaseController {
             Track track = new Track();
             track.setAccess("access");
             track.setSymbol(SymbolEnum.ETH);
-            track.getHedgeConfig().setHedgeType(HedgeServiceFactory.CONTRACT);
+            track.setHedgeType(HedgeServiceFactory.CONTRACT);
             fileService.writeTrack(track);
             return Result.buildSuccess();
         } catch (Exception e) {
@@ -60,7 +62,7 @@ public class FileController extends BaseController {
     @Description("记录配置信息")
     public Result writeHedgeConfig() {
         try {
-            HedgeConfig hedgeConfig = HedgeConfig.initDefault();
+            HedgeConfig hedgeConfig = PlatContext.getHedgeStrategy(StrategyTypeEnum.FIXED_BASIS_RADICAL_20X);
             fileService.writeHedgeConfig(hedgeConfig);
             return Result.buildSuccess();
         } catch (Exception e) {

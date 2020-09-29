@@ -35,7 +35,7 @@ public final class PlatContext {
         if (track == null) {
             return;
         }
-        String key = track.getAccess() + "-" + track.getSymbol().getValue() + "-" + track.getHedgeConfig().getHedgeType();
+        String key = track.getAccess() + "-" + track.getSymbol().getValue() + "-" + track.getHedgeType();
         trackMap.put(key, track);
     }
 

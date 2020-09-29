@@ -124,8 +124,9 @@ public class FileServiceImpl extends BaseService implements FileService {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), CHARSET));
             String line;
             List<HedgeConfig> cfgList = new ArrayList<>();
+            HedgeConfig tool = new HedgeConfig();
             while ((line = reader.readLine()) != null) {
-                cfgList.add(new HedgeConfig().fromJson(line));
+                cfgList.add(tool.fromJson(line));
             }
             reader.close();
             return cfgList;
