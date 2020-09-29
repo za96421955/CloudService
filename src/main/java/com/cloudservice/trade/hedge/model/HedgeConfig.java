@@ -26,8 +26,11 @@ import java.math.BigDecimal;
 public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     private static final long serialVersionUID = -4336975265204074693L;
 
+    // 基础配置
     /** 策略类型 */
     private StrategyTypeEnum strategyType;
+    /** 持仓金额(USD) */
+    private BigDecimal positionAmountUSD;
 
     // 开仓配置
     /** 倍数 */
@@ -57,11 +60,23 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         this.strategyType = strategyType;
     }
 
+    /**
+     * @description 获取持仓金额(RMB)
+     * <p>〈功能详细描述〉</p>
+     *
+     * @author 陈晨
+     * @date 2020/9/29 17:20
+     **/
+    private BigDecimal getPositionAmountRMB() {
+        return this.getPositionAmountUSD().multiply(new BigDecimal("6.9"));
+    }
+
     public boolean equals(HedgeConfig hedgeConfig) {
         if (hedgeConfig == null) {
             return false;
         }
-        return this.leverRate.equals(hedgeConfig.getLeverRate())
+        return this.positionAmountUSD.equals(hedgeConfig.getPositionAmountUSD())
+                && this.leverRate.equals(hedgeConfig.getLeverRate())
                 && this.basisVolume == hedgeConfig.getBasisVolume()
                 && this.beforeIntervalMultiple.equals(hedgeConfig.getBeforeIntervalMultiple())
                 && this.midIntervalMultiple.equals(hedgeConfig.getMidIntervalMultiple())
