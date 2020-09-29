@@ -47,6 +47,8 @@ public class Track implements Serializable, Jsonable<Track> {
     /** 最后撤销时间 */
     private Long lastCancelTime;
 
+    public Track() {}
+
     public Track(String access, String secret) {
         this.access = access;
         this.secret = secret;
@@ -140,6 +142,15 @@ public class Track implements Serializable, Jsonable<Track> {
         }
         return order.getDirection().equals(analyse.getDirection().getValue())
                 && ((System.currentTimeMillis() - order.getCreateDate()) < TradeService.CHASE_DISABLE_TIME);
+    }
+
+    public boolean equals(Track track) {
+        if (track == null) {
+            return false;
+        }
+        return this.getAccess().equals(track.getAccess())
+                && this.getSymbol().equals(track.getSymbol())
+                && this.getHedgeConfig().getHedgeType().equals(track.getHedgeConfig().getHedgeType());
     }
 
     @Override

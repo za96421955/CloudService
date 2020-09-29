@@ -15,6 +15,17 @@ import java.util.List;
  */
 public interface FileService {
 
+    String LOG_MARK = "文件服务";
+
+    /**
+     * @description 全部写入
+     * <p>〈功能详细描述〉</p>
+     *
+     * @author 陈晨
+     * @date 2020/9/29 14:37
+     **/
+    void flushAll();
+
     /**
      * @description 记录追踪信息
      * <p>〈功能详细描述〉</p>

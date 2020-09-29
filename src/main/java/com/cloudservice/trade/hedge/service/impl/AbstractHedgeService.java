@@ -91,8 +91,10 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
                 , this.calculateCloseLossVolume(sell));
         logger.debug("[{}] track={}, result={}, Buy - 开多止盈平仓", LOG_MARK, track, result);
         // 1.2, 停止交易, 开空止损平仓
-        result = this.stopTradeLittleLossClose(track, sell);
-        logger.debug("[{}] track={}, result={}, Buy - 停止交易, 开空止损平仓", LOG_MARK, track, result);
+        if (buy == null) {
+            result = this.stopTradeLittleLossClose(track, sell);
+            logger.debug("[{}] track={}, result={}, Buy - 停止交易, 开空止损平仓", LOG_MARK, track, result);
+        }
 
         // 2.1, 开空止盈平仓
         result = this.profitClose(track, sell
@@ -100,8 +102,10 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
                 , this.calculateCloseLossVolume(buy));
         logger.debug("[{}] track={}, result={}, Sell - 开空止盈平仓", LOG_MARK, track, result);
         // 2.2, 停止交易, 开多止损平仓
-        result = this.stopTradeLittleLossClose(track, buy);
-        logger.debug("[{}] track={}, result={}, Sell - 停止交易, 开多止损平仓", LOG_MARK, track, result);
+        if (sell == null) {
+            result = this.stopTradeLittleLossClose(track, buy);
+            logger.debug("[{}] track={}, result={}, Sell - 停止交易, 开多止损平仓", LOG_MARK, track, result);
+        }
     }
 
     /**

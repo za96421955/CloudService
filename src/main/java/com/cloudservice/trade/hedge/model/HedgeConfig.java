@@ -53,6 +53,8 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         return new HedgeConfig(HedgeServiceFactory.CONTRACT, ContractLeverRateEnum.LEVER_10, 1, BigDecimal.ONE);
     }
 
+    public HedgeConfig() {}
+
     public HedgeConfig(String hedgeType, ContractLeverRateEnum leverRate, long basisVolume, BigDecimal incomePricePlan) {
         this.hedgeType = hedgeType;
         this.leverRate = leverRate;
@@ -98,6 +100,19 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     public HedgeConfig setStopTrade(boolean stopTrade) {
         this.stopTrade = stopTrade;
         return this;
+    }
+
+    public boolean equals(HedgeConfig hedgeConfig) {
+        if (hedgeConfig == null) {
+            return false;
+        }
+        return this.hedgeType.equals(hedgeConfig.getHedgeType())
+                && this.leverRate.equals(hedgeConfig.getLeverRate())
+                && this.basisVolume == hedgeConfig.getBasisVolume()
+                && this.incomePricePlan.equals(hedgeConfig.getIncomePricePlan())
+                && this.profitBasisMultiple.equals(hedgeConfig.getProfitBasisMultiple())
+                && this.profitTrackIntervalTime == hedgeConfig.getProfitTrackIntervalTime()
+                && this.timeout == hedgeConfig.getTimeout();
     }
 
     @Override
