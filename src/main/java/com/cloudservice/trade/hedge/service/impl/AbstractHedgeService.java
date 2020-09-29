@@ -87,8 +87,8 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
          */
         // 1.1, 开多止盈平仓
         Result result = this.profitClose(track, buy
-                , this.calculateIncomeMultiple(track, buy, sell)
-                , this.calculateCloseLossVolume(sell));
+                , this.calculateIncomeMultiple(track, sell)
+                , this.calculateCloseLossVolume(track, sell));
         logger.debug("[{}] track={}, result={}, Buy - 开多止盈平仓", LOG_MARK, track, result);
         // 1.2, 停止交易, 开空止损平仓
         if (buy == null) {
@@ -98,8 +98,8 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
 
         // 2.1, 开空止盈平仓
         result = this.profitClose(track, sell
-                , this.calculateIncomeMultiple(track, sell, buy)
-                , this.calculateCloseLossVolume(buy));
+                , this.calculateIncomeMultiple(track, buy)
+                , this.calculateCloseLossVolume(track, buy));
         logger.debug("[{}] track={}, result={}, Sell - 开空止盈平仓", LOG_MARK, track, result);
         // 2.2, 停止交易, 开多止损平仓
         if (sell == null) {
@@ -111,27 +111,18 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
     /**
      * @description 计算止盈收益倍数
      * <p>
-     *     1，逆向持仓 / 基础张数
-     *     2，最小1倍
+     *     1，最小1倍
      * </p>
      *
      * @author 陈晨
      * @date 2020/9/26 15:00
-     * @param track, position
+     * @param track, reversePosition
      **/
-    private BigDecimal calculateIncomeMultiple(Track track, Position position, Position reversePosition) {
-        if (position == null) {
+    private BigDecimal calculateIncomeMultiple(Track track, Position reversePosition) {
+        if (reversePosition == null) {
             return BigDecimal.ONE;
         }
-        BigDecimal volume;
-        if (reversePosition == null) {
-            volume = position.getVolume();
-        } else {
-            volume = reversePosition.getVolume();
-        }
-        BigDecimal incomeMultiple = volume
-                .divide(BigDecimal.valueOf(track.getHedgeConfig().getBasisVolume()), new MathContext(2))
-                .multiply(track.getHedgeConfig().getProfitBasisMultiple());
+        BigDecimal incomeMultiple = track.getProfitMultiple(reversePosition.getVolume().longValue());
         if (incomeMultiple.compareTo(BigDecimal.ONE) < 0) {
             incomeMultiple = BigDecimal.ONE;
         }
@@ -146,11 +137,14 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      * @date 2020/9/26 15:03
      * @param position
      **/
-    private long calculateCloseLossVolume(Position position) {
+    private long calculateCloseLossVolume(Track track, Position position) {
         if (position == null) {
             return 0;
         }
-        return position.getVolume().longValue();
+        // 获取下区间倍率
+        BigDecimal multiple = track.getNextRangeMultiple(position.getVolume().longValue());
+        // 当前持仓 * 区间倍率 - 当前持仓 = 止损追仓数
+        return position.getVolume().multiply(multiple).subtract(position.getVolume()).longValue();
     }
 
     /**

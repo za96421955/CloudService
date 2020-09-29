@@ -20,22 +20,22 @@ public final class HedgeContext {
 
     private HedgeContext() {}
 
-    /** 订单追踪 */
-    private static final Map<String, Track> trackMap = new HashMap<>();
-    public synchronized static Track getTrack(String access, SymbolEnum symbol, String hedgeType) {
-        String key = access + "-" + symbol.getValue() + "-" + hedgeType;
-        Track track = trackMap.get(key);
-        if (track == null) {
-            trackMap.put(key, new Track(access, null));
-            track = trackMap.get(key);
-            track.setSymbol(symbol);
-            track.setHedgeType(hedgeType);
-        }
-        return track;
-    }
-    public static List<Track> getTrackList() {
-        return new ArrayList<>(trackMap.values());
-    }
+//    /** 订单追踪 */
+//    private static final Map<String, Track> trackMap = new HashMap<>();
+//    public synchronized static Track getTrack(String access, SymbolEnum symbol, String hedgeType) {
+//        String key = access + "-" + symbol.getValue() + "-" + hedgeType;
+//        Track track = trackMap.get(key);
+//        if (track == null) {
+//            trackMap.put(key, new Track(access, null));
+//            track = trackMap.get(key);
+//            track.setSymbol(symbol);
+//            track.setHedgeType(hedgeType);
+//        }
+//        return track;
+//    }
+//    public static List<Track> getTrackList() {
+//        return new ArrayList<>(trackMap.values());
+//    }
 
 }
 

@@ -2,6 +2,8 @@ package com.cloudservice.trade.controller;
 
 import com.cloudservice.base.BaseController;
 import com.cloudservice.base.Result;
+import com.cloudservice.plat.context.PlatContext;
+import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.trade.analyse.context.AnalyseContext;
 import com.cloudservice.trade.analyse.service.trade.OrderService;
 import com.cloudservice.trade.analyse.service.trade.TradeService;
@@ -58,22 +60,20 @@ public class TradeController extends BaseController {
     @PostMapping("/order/{symbol}")
     @Description("委托交易")
     public Track order(String access, String secret, @PathVariable String symbol
-            , String hedgeType, String leverRate, long basisVolume, BigDecimal incomePricePlan
-            , BigDecimal profitBasisMultiple, Long profitTrackIntervalTime, Integer timeout) {
-        Track track = HedgeContext.getTrack(access, SymbolEnum.get(symbol), hedgeType);
-        track.setSecret(secret);
-        track.getHedgeConfig().setLeverRate(ContractLeverRateEnum.get(leverRate));
-        track.getHedgeConfig().setBasisVolume(basisVolume);
+            , String hedgeType, String strategyType, BigDecimal incomePricePlan
+            , Long profitTrackIntervalTime, Integer timeout) {
+        Track track = new Track(access, secret);
+        track.setSymbol(SymbolEnum.get(symbol));
+        track.setHedgeType(hedgeType);
+        track.setHedgeConfig(PlatContext.getHedgeStrategy(StrategyTypeEnum.get(strategyType)));
         track.getHedgeConfig().setIncomePricePlan(incomePricePlan);
-        if (profitBasisMultiple != null) {
-            track.getHedgeConfig().setProfitBasisMultiple(profitBasisMultiple);
-        }
         if (profitTrackIntervalTime != null) {
             track.getHedgeConfig().setProfitTrackIntervalTime(profitTrackIntervalTime);
         }
         if (timeout != null) {
             track.getHedgeConfig().setTimeout(timeout);
         }
+        PlatContext.setTrack(track);
         return track;
     }
 
@@ -81,7 +81,10 @@ public class TradeController extends BaseController {
     @Description("交易切换")
     public String changeTrade(@PathVariable String access, @PathVariable String symbol
             , @PathVariable String hedgeType) {
-        Track track = HedgeContext.getTrack(access, SymbolEnum.get(symbol), hedgeType);
+        Track track = PlatContext.getTrack(access, SymbolEnum.get(symbol), hedgeType);
+        if (track == null) {
+            return null;
+        }
         track.setStopTrade(!track.isStopTrade());
         return "isStopTrade: " + track.isStopTrade();
     }
