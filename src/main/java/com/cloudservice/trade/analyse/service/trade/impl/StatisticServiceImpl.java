@@ -15,6 +15,7 @@ import com.cloudservice.trade.huobi.service.spot.SpotMarketService;
 import com.cloudservice.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -108,6 +109,9 @@ public class StatisticServiceImpl extends BaseService implements StatisticServic
                 , 1, 50
                 , DateUtil.parse(beginTime, DateUtil.DATE_LONG)
                 , DateUtil.parse(endTime, DateUtil.DATE_LONG));
+        if (CollectionUtils.isEmpty(orderList)) {
+            return Collections.emptyList();
+        }
         List<ProfitLoss> profitLossList = new ArrayList<>();
         ProfitLoss currBuy = null;
         ProfitLoss currSell = null;

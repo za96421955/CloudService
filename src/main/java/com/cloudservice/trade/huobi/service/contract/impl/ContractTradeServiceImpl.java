@@ -12,6 +12,7 @@ import com.cloudservice.trade.huobi.service.HuobiHttpRequest;
 import com.cloudservice.trade.huobi.service.contract.ContractTradeService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -122,7 +123,7 @@ public class ContractTradeServiceImpl extends BaseService implements ContractTra
         JSONObject result = JSONObject.parseObject(HuobiHttpRequest.post(access, secret, Host.CONTRACT, ContractAPI.Trade.MATCHRESULTS.getApi(), data.toString()));
         JSONObject resultData = result.getJSONObject("data");
         List<Order> orderList = Order.parseList(resultData.getJSONArray("trades"));
-        if (beginTime == null) {
+        if (CollectionUtils.isEmpty(orderList) || beginTime == null) {
             return orderList;
         }
         // 若设置了开始时间, 且最后一条记录成交时间 > 开始时间, 则继续查下一页

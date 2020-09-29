@@ -90,13 +90,18 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
                 , this.calculateIncomeMultiple(track, buy, sell)
                 , this.calculateCloseLossVolume(sell));
         logger.debug("[{}] track={}, result={}, Buy - 开多止盈平仓", LOG_MARK, track, result);
-        // TODO 1.2开多止损开仓
+        // 1.2, 停止交易, 开空止损平仓
+        result = this.stopTradeLittleLossClose(track, sell);
+        logger.debug("[{}] track={}, result={}, Buy - 停止交易, 开空止损平仓", LOG_MARK, track, result);
+
         // 2.1, 开空止盈平仓
         result = this.profitClose(track, sell
                 , this.calculateIncomeMultiple(track, sell, buy)
                 , this.calculateCloseLossVolume(buy));
         logger.debug("[{}] track={}, result={}, Sell - 开空止盈平仓", LOG_MARK, track, result);
-        // TODO 2.2开空止损开仓
+        // 2.2, 停止交易, 开多止损平仓
+        result = this.stopTradeLittleLossClose(track, buy);
+        logger.debug("[{}] track={}, result={}, Sell - 停止交易, 开多止损平仓", LOG_MARK, track, result);
     }
 
     /**
@@ -245,23 +250,25 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
             return Result.buildFail("止盈平仓检查, 超时");
         }
 
-        // 2, 未停止交易, 则止盈同向新开仓
-        if (!this.isStopTrade(track, position)) {
-            // 2, 同向开仓（basis张）
-            result = this.open(track, ContractDirectionEnum.get(position.getDirection()), track.getHedgeConfig().getBasisVolume());
-            logger.info("[{}] track={}, direction={}, result={}, 同向开仓（{}}张）"
-                    , LOG_MARK, track, position.getDirection(), result, track.getHedgeConfig().getBasisVolume());
-            if (!result.success()) {
-                return result;
-            }
-            // 订单完成检查
-            if (!this.orderCompleteCheck(track, result, 0)) {
-                logger.info("[{}] track={}, direction={}, 同向开仓检查, 超时", LOG_MARK, track, position.getDirection());
-                return Result.buildFail("同向开仓检查, 超时");
-            }
+        // 2, 停止交易, 则停止追仓
+        if (this.isStopTrade(track, position)) {
+            return Result.buildSuccess();
         }
 
-        // 3, 逆向止损加仓（lossVolume张）
+        // 3, 同向开仓（basis张）
+        result = this.open(track, ContractDirectionEnum.get(position.getDirection()), track.getHedgeConfig().getBasisVolume());
+        logger.info("[{}] track={}, direction={}, result={}, 同向开仓（{}}张）"
+                , LOG_MARK, track, position.getDirection(), result, track.getHedgeConfig().getBasisVolume());
+        if (!result.success()) {
+            return result;
+        }
+        // 订单完成检查
+        if (!this.orderCompleteCheck(track, result, 0)) {
+            logger.info("[{}] track={}, direction={}, 同向开仓检查, 超时", LOG_MARK, track, position.getDirection());
+            return Result.buildFail("同向开仓检查, 超时");
+        }
+
+        // 4, 逆向止损加仓（lossVolume张）
         if (lossVolume > 0) {
             result = this.open(track, ContractDirectionEnum.get(position.getDirection()).getNegate(), lossVolume);
             logger.info("[{}] track={}, direction={}, result={}, 逆向止损加仓（{}张）"
@@ -292,15 +299,35 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
     }
 
     /**
-     * @description 止损开仓
+     * @description 停止交易小仓止损平仓
      * <p>〈功能详细描述〉</p>
      *
      * @author 陈晨
      * @date 2020/9/28 17:58
-     * @param track, position, incomeMultiple, lossVolume
+     * @param track, position
      **/
-    private Result lossOpen(Track track, Position position, BigDecimal incomeMultiple, long lossVolume) {
-
+    private Result stopTradeLittleLossClose(Track track, Position position) {
+        if (position == null
+                || !track.getHedgeConfig().isStopTrade()
+                || position.getVolume().compareTo(BigDecimal.valueOf(track.getHedgeConfig().getBasisVolume())) > 0) {
+            return Result.buildSuccess();
+        }
+        // 1, 止损平仓（所有张）
+        Result result = this.close(track, position);
+        logger.info("[{}] track={}, direction={}, price={}, result={}, 止损平仓（所有, {}张）"
+                , LOG_MARK, track, position.getDirection(), position.getCostHold()
+                , result, position.getVolume());
+        if (!result.success()) {
+            return result;
+        }
+        // 订单完成检查
+        if (!this.orderCompleteCheck(track, result, 0)) {
+            // 平仓下单失败, 则全部撤单, 重新下单
+            result = this.cancel(track);
+            logger.info("[{}] track={}, position={}, result={}, 止损平仓检查超时, 则全部撤单, 重新下单"
+                    , LOG_MARK, track, position, result);
+            return this.stopTradeLittleLossClose(track, position);
+        }
         return Result.buildSuccess();
     }
 
