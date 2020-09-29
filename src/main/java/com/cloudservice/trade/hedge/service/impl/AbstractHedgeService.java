@@ -40,16 +40,16 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         logger.info("[{}] track={}, buy={}, sell={}, 持仓检查", LOG_MARK, track, buy, sell);
 
         // 开多下单
-        if (!track.getHedgeConfig().isStopTrade() && buy == null) {
+        if (!track.isStopTrade() && buy == null) {
             Result result = this.open(track, ContractDirectionEnum.BUY, track.getHedgeConfig().getBasisVolume());
             logger.info("[{}] track={}, result={}, 开多下单", LOG_MARK, track, result);
         }
         // 开空下单
-        if (!track.getHedgeConfig().isStopTrade() && sell == null) {
+        if (!track.isStopTrade() && sell == null) {
             Result result = this.open(track, ContractDirectionEnum.SELL, track.getHedgeConfig().getBasisVolume());
             logger.info("[{}] track={}, result={}, 开空下单", LOG_MARK, track, result);
         }
-        if (!track.getHedgeConfig().isStopTrade() && (buy == null || sell == null)) {
+        if (!track.isStopTrade() && (buy == null || sell == null)) {
             return Result.buildFail("交易开启 & (开多 || 开空)无持仓, 持仓检查不通过");
         }
         // 0: 多, 1: 空
@@ -312,7 +312,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      **/
     private Result stopTradeLittleLossClose(Track track, Position position) {
         if (position == null
-                || !track.getHedgeConfig().isStopTrade()
+                || !track.isStopTrade()
                 || position.getVolume().compareTo(BigDecimal.valueOf(track.getHedgeConfig().getBasisVolume())) > 0) {
             return Result.buildSuccess();
         }

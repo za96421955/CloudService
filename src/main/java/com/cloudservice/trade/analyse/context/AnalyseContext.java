@@ -1,6 +1,7 @@
 package com.cloudservice.trade.analyse.context;
 
 import com.cloudservice.trade.analyse.model.trade.Analyse;
+import com.cloudservice.trade.analyse.model.trade.AnalyseTrack;
 import com.cloudservice.trade.hedge.model.Track;
 
 import java.util.ArrayList;
@@ -40,16 +41,16 @@ public final class AnalyseContext {
     }
 
     /** 订单追踪 */
-    private static final Map<String, Track> trackMap = new HashMap<>();
-    public synchronized static Track getTrack(String access) {
-        Track track = trackMap.get(access);
+    private static final Map<String, AnalyseTrack> trackMap = new HashMap<>();
+    public synchronized static AnalyseTrack getTrack(String access) {
+        AnalyseTrack track = trackMap.get(access);
         if (track == null) {
-            trackMap.put(access, new Track(access, null));
+            trackMap.put(access, new AnalyseTrack(access, null));
             track = trackMap.get(access);
         }
         return track;
     }
-    public static List<Track> getTrackList() {
+    public static List<AnalyseTrack> getTrackList() {
         return new ArrayList<>(trackMap.values());
     }
 

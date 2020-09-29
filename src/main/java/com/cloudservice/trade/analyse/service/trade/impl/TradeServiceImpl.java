@@ -5,6 +5,7 @@ import com.cloudservice.base.BaseService;
 import com.cloudservice.base.Result;
 import com.cloudservice.trade.analyse.context.AnalyseContext;
 import com.cloudservice.trade.analyse.model.trade.Analyse;
+import com.cloudservice.trade.analyse.model.trade.AnalyseTrack;
 import com.cloudservice.trade.analyse.service.trade.OrderService;
 import com.cloudservice.trade.analyse.service.trade.TradeService;
 import com.cloudservice.trade.hedge.model.Track;
@@ -44,7 +45,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
     private OrderService orderService;
 
     @Override
-    public Result checkOpen(Track track) {
+    public Result checkOpen(AnalyseTrack track) {
         // 1, 获取持仓信息
         Position position = contractAccountService.getPositionInfo(track.getAccess(), track.getSecret(), track.getSymbol());
         if (position != null) {
@@ -70,7 +71,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
      * @author 陈晨
      * @date 2020/9/17 14:23
      **/
-    private void setLastOrderId(Track track) {
+    private void setLastOrderId(AnalyseTrack track) {
         if (track == null || StringUtils.isNotBlank(track.getLastOrderId())) {
             return;
         }
@@ -86,7 +87,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
     }
 
     @Override
-    public Result orderOpen(Track track) {
+    public Result orderOpen(AnalyseTrack track) {
         // 获取现价分析信息
         Analyse analyse = AnalyseContext.getAnalyse();
         if (analyse == null) {
@@ -158,7 +159,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
     }
 
     @Override
-    public Result checkCancel(Track track) {
+    public Result checkCancel(AnalyseTrack track) {
         // 1, 获取OrderId
         if (StringUtils.isBlank(track.getLastOrderId())) {
             return Result.buildFail("orderId不存在");
@@ -200,7 +201,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
      * @author 陈晨
      * @date 2020/9/14 15:00
      **/
-    private boolean checkTimeout(Track track) {
+    private boolean checkTimeout(AnalyseTrack track) {
         if (track.getLastOpenTime() == null) {
             return false;
         }
@@ -208,7 +209,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
     }
 
     @Override
-    public Result closeTrack(Track track) {
+    public Result closeTrack(AnalyseTrack track) {
         // 获取持仓信息
         Position position = contractAccountService.getPositionInfo(track.getAccess(), track.getSecret(), track.getSymbol());
         if (position == null) {
@@ -280,7 +281,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
      * @date 2020/9/18 14:33
      * @param track
      **/
-    private boolean checkBreakdown(Track track) {
+    private boolean checkBreakdown(AnalyseTrack track) {
         Kline kline = spotMarketService.getKlineCurr(SymbolUSDTEnum.getUSDT(track.getSymbol().getValue()));
         if (kline == null) {
             return false;

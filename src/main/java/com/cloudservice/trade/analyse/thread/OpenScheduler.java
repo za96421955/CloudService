@@ -3,6 +3,7 @@ package com.cloudservice.trade.analyse.thread;
 import com.cloudservice.base.BaseService;
 import com.cloudservice.base.Result;
 import com.cloudservice.trade.analyse.context.AnalyseContext;
+import com.cloudservice.trade.analyse.model.trade.AnalyseTrack;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.huobi.enums.SymbolUSDTEnum;
 import com.cloudservice.trade.analyse.service.trade.AnalyseServiceFactory;
@@ -40,7 +41,7 @@ public class OpenScheduler extends BaseService {
         }
 
         logger.info("[开仓] ===============================");
-        for (Track track : AnalyseContext.getTrackList()) {
+        for (AnalyseTrack track : AnalyseContext.getTrackList()) {
             if (track == null || !track.isOpenAllow()) {
                 continue;
             }

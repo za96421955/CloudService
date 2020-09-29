@@ -70,7 +70,7 @@ public class SwapHedgeServiceImpl extends AbstractHedgeService {
     @Override
     protected boolean isStopTrade(Track track, Position position) {
         // 停止交易, 无持仓 || 平仓张数 > basis, 则不再向下追仓
-        if (!track.getHedgeConfig().isStopTrade()) {
+        if (!track.isStopTrade()) {
             return false;
         }
         Position positionCheck = swapAccountService.getPositionInfo(track.getAccess(), track.getSecret(), track.getContractCode());

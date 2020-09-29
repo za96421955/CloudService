@@ -1,6 +1,7 @@
 package com.cloudservice.trade.analyse.service.trade;
 
 import com.cloudservice.base.Result;
+import com.cloudservice.trade.analyse.model.trade.AnalyseTrack;
 import com.cloudservice.trade.hedge.model.Track;
 
 
@@ -30,7 +31,7 @@ public interface TradeService {
      * @date 2020/9/14 10:32
      * @param track
      **/
-    Result checkOpen(Track track);
+    Result checkOpen(AnalyseTrack track);
 
     /**
      * @description 委托下单
@@ -40,7 +41,7 @@ public interface TradeService {
      * @date 2020/9/14 10:32
      * @param track
      */
-    Result orderOpen(Track track);
+    Result orderOpen(AnalyseTrack track);
 
     /**
      * @description 撤单检查
@@ -50,7 +51,7 @@ public interface TradeService {
      * @date 2020/9/14 10:32
      * @param track
      **/
-    Result checkCancel(Track track);
+    Result checkCancel(AnalyseTrack track);
 
     /**
      * @description 平仓追踪
@@ -60,7 +61,7 @@ public interface TradeService {
      * @date 2020/9/14 10:32
      * @param track
      **/
-    Result closeTrack(Track track);
+    Result closeTrack(AnalyseTrack track);
 
 }
 

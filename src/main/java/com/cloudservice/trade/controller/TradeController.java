@@ -82,8 +82,8 @@ public class TradeController extends BaseController {
     public String changeTrade(@PathVariable String access, @PathVariable String symbol
             , @PathVariable String hedgeType) {
         Track track = HedgeContext.getTrack(access, SymbolEnum.get(symbol), hedgeType);
-        track.getHedgeConfig().setStopTrade(!track.getHedgeConfig().isStopTrade());
-        return "isStopTrade: " + track.getHedgeConfig().isStopTrade();
+        track.setStopTrade(!track.isStopTrade());
+        return "isStopTrade: " + track.isStopTrade();
     }
 
 }
