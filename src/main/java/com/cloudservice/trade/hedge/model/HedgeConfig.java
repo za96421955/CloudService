@@ -72,13 +72,13 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     }
 
     /**
-     * @description 获取RMB金额
+     * @description 获取CNY金额
      * <p>〈功能详细描述〉</p>
      *
      * @author 陈晨
      * @date 2020/9/29 17:20
      **/
-    private BigDecimal getAmountRMB(BigDecimal usd) {
+    private BigDecimal getAmountCNY(BigDecimal usd) {
         if (usd == null) {
             return BigDecimal.ZERO;
         }

@@ -66,15 +66,18 @@ public class TradeController extends BaseController {
         track.setSymbol(SymbolEnum.get(symbol));
         track.setHedgeType(hedgeType);
         track.setHedgeConfig(PlatContext.getHedgeStrategy(StrategyTypeEnum.get(strategyType)));
-        track.getHedgeConfig().setIncomePricePlan(incomePricePlan);
+        if (incomePricePlan != null) {
+            track.getHedgeConfig().setIncomePricePlan(incomePricePlan);
+        }
         if (profitTrackIntervalTime != null) {
             track.getHedgeConfig().setProfitTrackIntervalTime(profitTrackIntervalTime);
         }
         if (timeout != null) {
             track.getHedgeConfig().setTimeout(timeout);
         }
+        // 记录上下文
         PlatContext.setTrack(track);
-        return track;
+        return PlatContext.getTrack(track.getAccess(), track.getSymbol(), track.getHedgeType());
     }
 
     @GetMapping("/changeTrade/{symbol}/{hedgeType}/{access}")
