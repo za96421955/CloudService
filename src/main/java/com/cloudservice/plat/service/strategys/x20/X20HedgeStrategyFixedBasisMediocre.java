@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 /**
- * 基础固定策略 - 稳健
+ * 基础固定策略 - 中庸
  * <p>〈功能详细描述〉</p>
  *
  * @author 陈晨
@@ -17,12 +17,12 @@ import java.math.BigDecimal;
  * @date 2020/9/29
  */
 @Service
-public class HedgeStrategyFixedBasisSteady implements StrategyAPI<HedgeConfig> {
+public class X20HedgeStrategyFixedBasisMediocre implements StrategyAPI<HedgeConfig> {
 
     @Override
     public HedgeConfig getStrategy() {
-        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS_STEADY_20X);
-        cfg.setPositionAmountUSD(new BigDecimal("128"));
+        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS_MEDIOCRE_20X);
+        cfg.setPositionAmountUSD(new BigDecimal("64"));
         cfg.setLeverRate(ContractLeverRateEnum.LEVER_20);
         cfg.setBasisVolume(2);
         cfg.setBeforeIntervalMultiple(BigDecimal.valueOf(2));

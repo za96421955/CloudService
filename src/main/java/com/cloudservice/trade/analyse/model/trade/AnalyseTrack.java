@@ -147,7 +147,7 @@ public class AnalyseTrack extends Track {
         }
         return this.getAccess().equals(track.getAccess())
                 && this.getSymbol().equals(track.getSymbol())
-                && this.getHedgeConfig().getHedgeType().equals(track.getHedgeConfig().getHedgeType());
+                && this.getHedgeType().equals(track.getHedgeType());
     }
 
     @Override

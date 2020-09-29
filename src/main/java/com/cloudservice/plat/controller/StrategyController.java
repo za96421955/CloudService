@@ -2,9 +2,11 @@ package com.cloudservice.plat.controller;
 
 import com.cloudservice.base.BaseController;
 import com.cloudservice.base.Result;
+import com.cloudservice.plat.context.PlatContext;
 import com.cloudservice.plat.service.StrategyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +46,17 @@ public class StrategyController extends BaseController {
             return Result.buildSuccess();
         } catch (Exception e) {
             logger.error("[策略] 加载对冲策略异常, {}", e.getMessage(), e);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/hedge/list")
+    @Description("获取对冲策略信息集合")
+    public Result getHedgeStrategyList() {
+        try {
+            return Result.buildSuccess(PlatContext.getHedgeStrategyList());
+        } catch (Exception e) {
+            logger.error("[策略] 获取对冲策略信息集合异常, {}", e.getMessage(), e);
             throw new RuntimeException(e.getMessage());
         }
     }

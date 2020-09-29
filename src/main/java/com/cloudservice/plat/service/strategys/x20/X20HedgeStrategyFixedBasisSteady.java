@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 /**
- * 2张中区间拉近(2233222)20X固定策略 - 稳健
+ * 基础固定策略 - 稳健
  * <p>〈功能详细描述〉</p>
  *
  * @author 陈晨
@@ -17,16 +17,16 @@ import java.math.BigDecimal;
  * @date 2020/9/29
  */
 @Service
-public class HedgeStrategyFixed2MidRangeSTDSteady implements StrategyAPI<HedgeConfig> {
+public class X20HedgeStrategyFixedBasisSteady implements StrategyAPI<HedgeConfig> {
 
     @Override
     public HedgeConfig getStrategy() {
-        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_2_MIDRANGE_STD_STEADY_20X);
-        cfg.setPositionAmountUSD(new BigDecimal("648"));
+        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS_STEADY_20X);
+        cfg.setPositionAmountUSD(new BigDecimal("128"));
         cfg.setLeverRate(ContractLeverRateEnum.LEVER_20);
         cfg.setBasisVolume(2);
         cfg.setBeforeIntervalMultiple(BigDecimal.valueOf(2));
-        cfg.setMidIntervalMultiple(BigDecimal.valueOf(3));
+        cfg.setMidIntervalMultiple(BigDecimal.valueOf(2));
         cfg.setAfterIntervalMultiple(BigDecimal.valueOf(2));
         cfg.setIncomePricePlan(new BigDecimal("0.6"));
         cfg.setProfitBasisMultiple(BigDecimal.ONE);

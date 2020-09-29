@@ -1,4 +1,4 @@
-package com.cloudservice.plat.service.strategys.x20;
+package com.cloudservice.plat.service.strategys.x50;
 
 import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.plat.service.strategys.StrategyAPI;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 /**
- * 3张中区间拉近(2233222)20X固定策略 - 激进
+ * 基础固定策略 - 稳健
  * <p>〈功能详细描述〉</p>
  *
  * @author 陈晨
@@ -17,16 +17,16 @@ import java.math.BigDecimal;
  * @date 2020/9/29
  */
 @Service
-public class HedgeStrategyFixed3MidRangeSTDRadical implements StrategyAPI<HedgeConfig> {
+public class X50HedgeStrategyFixedBasisSteady implements StrategyAPI<HedgeConfig> {
 
     @Override
     public HedgeConfig getStrategy() {
-        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_3_MIDRANGE_STD_RADICAL_20X);
-        cfg.setPositionAmountUSD(new BigDecimal("108"));
-        cfg.setLeverRate(ContractLeverRateEnum.LEVER_20);
-        cfg.setBasisVolume(3);
+        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS_STEADY_50X);
+        cfg.setPositionAmountUSD(new BigDecimal("51.2"));
+        cfg.setLeverRate(ContractLeverRateEnum.LEVER_50);
+        cfg.setBasisVolume(2);
         cfg.setBeforeIntervalMultiple(BigDecimal.valueOf(2));
-        cfg.setMidIntervalMultiple(BigDecimal.valueOf(3));
+        cfg.setMidIntervalMultiple(BigDecimal.valueOf(2));
         cfg.setAfterIntervalMultiple(BigDecimal.valueOf(2));
         cfg.setIncomePricePlan(new BigDecimal("0.6"));
         cfg.setProfitBasisMultiple(BigDecimal.ONE);

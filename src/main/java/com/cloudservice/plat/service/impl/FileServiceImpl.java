@@ -47,20 +47,20 @@ public class FileServiceImpl extends BaseService implements FileService {
         if (file.exists()) {
             file.delete();
         }
-        // 写入Track
-        if (CollectionUtils.isEmpty(trackList)) {
-            FileUtil.append(track.toJson().toString() + "\n", PATH_TRACK, CHARSET);
-            return;
-        }
         // 重新全部写入
+        boolean isWrite = false;
         for (Track writeTrack : trackList) {
             if (writeTrack == null) {
                 continue;
             }
             if (writeTrack.equals(track)) {
                 writeTrack = track;
+                isWrite = true;
             }
             FileUtil.append(writeTrack.toJson().toString() + "\n", PATH_TRACK, CHARSET);
+        }
+        if (!isWrite) {
+            FileUtil.append(track.toJson().toString() + "\n", PATH_TRACK, CHARSET);
         }
     }
 
@@ -97,20 +97,20 @@ public class FileServiceImpl extends BaseService implements FileService {
         if (file.exists()) {
             file.delete();
         }
-        // 写入Track
-        if (CollectionUtils.isEmpty(cfgList)) {
-            FileUtil.append(hedgeConfig.toJson().toString() + "\n", PATH_HEDGE_CONFIG, CHARSET);
-            return;
-        }
         // 重新全部写入
+        boolean isWrite = false;
         for (HedgeConfig writeCfg : cfgList) {
             if (writeCfg == null) {
                 continue;
             }
             if (writeCfg.equals(hedgeConfig)) {
                 writeCfg = hedgeConfig;
+                isWrite = true;
             }
             FileUtil.append(writeCfg.toJson().toString() + "\n", PATH_HEDGE_CONFIG, CHARSET);
+        }
+        if (!isWrite) {
+            FileUtil.append(hedgeConfig.toJson().toString() + "\n", PATH_HEDGE_CONFIG, CHARSET);
         }
     }
 
