@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 /**
- * 基础固定策略 - 稳健
+ * 基础固定策略
  * <p>〈功能详细描述〉</p>
  *
  * @author 陈晨

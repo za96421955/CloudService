@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 /**
- * 2张中区间拉近(2233222)20X固定策略 - 稳健
+ * 2张中区间拉近(2233222)
  * <p>〈功能详细描述〉</p>
  *
  * @author 陈晨

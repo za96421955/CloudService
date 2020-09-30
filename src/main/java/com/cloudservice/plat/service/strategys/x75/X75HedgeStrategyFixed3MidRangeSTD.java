@@ -1,4 +1,4 @@
-package com.cloudservice.plat.service.strategys.x50;
+package com.cloudservice.plat.service.strategys.x75;
 
 import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.plat.service.strategys.StrategyAPI;
@@ -17,15 +17,15 @@ import java.math.BigDecimal;
  * @date 2020/9/29
  */
 @Service
-public class X50HedgeStrategyFixed3MidRangeSTD implements StrategyAPI<HedgeConfig> {
+public class X75HedgeStrategyFixed3MidRangeSTD implements StrategyAPI<HedgeConfig> {
 
     @Override
     public HedgeConfig getStrategy() {
-        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_3_MIDRANGE_STD_50X);
-        cfg.setSteadyAmountUSD(new BigDecimal("388.8"));
-        cfg.setMediocreAmountUSD(new BigDecimal("129.6"));
-        cfg.setRadicalAmountUSD(new BigDecimal("43.2"));
-        cfg.setLeverRate(ContractLeverRateEnum.LEVER_50);
+        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_3_MIDRANGE_STD_75X);
+        cfg.setSteadyAmountUSD(new BigDecimal("259.2"));
+        cfg.setMediocreAmountUSD(new BigDecimal("86.4"));
+        cfg.setRadicalAmountUSD(new BigDecimal("28.8"));
+        cfg.setLeverRate(ContractLeverRateEnum.LEVER_75);
         cfg.setBasisVolume(3);
         cfg.getIntervalMultipleMap().put(1, BigDecimal.valueOf(2));
         cfg.getIntervalMultipleMap().put(2, BigDecimal.valueOf(2));

@@ -1,4 +1,4 @@
-package com.cloudservice.plat.service.strategys.x50;
+package com.cloudservice.plat.service.strategys.x75;
 
 import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.plat.service.strategys.StrategyAPI;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 /**
- * 3张中区间拉近(2233222)
+ * 4张中区间拉近(2233222)
  * <p>〈功能详细描述〉</p>
  *
  * @author 陈晨
@@ -17,16 +17,16 @@ import java.math.BigDecimal;
  * @date 2020/9/29
  */
 @Service
-public class X50HedgeStrategyFixed3MidRangeSTD implements StrategyAPI<HedgeConfig> {
+public class X75HedgeStrategyFixed4MidRangeSTD implements StrategyAPI<HedgeConfig> {
 
     @Override
     public HedgeConfig getStrategy() {
-        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_3_MIDRANGE_STD_50X);
-        cfg.setSteadyAmountUSD(new BigDecimal("388.8"));
-        cfg.setMediocreAmountUSD(new BigDecimal("129.6"));
-        cfg.setRadicalAmountUSD(new BigDecimal("43.2"));
-        cfg.setLeverRate(ContractLeverRateEnum.LEVER_50);
-        cfg.setBasisVolume(3);
+        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_4_MIDRANGE_STD_75X);
+        cfg.setSteadyAmountUSD(new BigDecimal("345.6"));
+        cfg.setMediocreAmountUSD(new BigDecimal("115.2"));
+        cfg.setRadicalAmountUSD(new BigDecimal("38.4"));
+        cfg.setLeverRate(ContractLeverRateEnum.LEVER_75);
+        cfg.setBasisVolume(4);
         cfg.getIntervalMultipleMap().put(1, BigDecimal.valueOf(2));
         cfg.getIntervalMultipleMap().put(2, BigDecimal.valueOf(2));
         cfg.getIntervalMultipleMap().put(3, BigDecimal.valueOf(3));

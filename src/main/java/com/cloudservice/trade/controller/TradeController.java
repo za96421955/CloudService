@@ -62,7 +62,10 @@ public class TradeController extends BaseController {
     public Track order(String access, String secret, @PathVariable String symbol
             , String hedgeType, String strategyType, BigDecimal incomePricePlan
             , Long profitTrackIntervalTime, Integer timeout) {
-        Track track = new Track(access, secret);
+        Track track = PlatContext.getTrack(access, SymbolEnum.get(symbol), hedgeType);
+        if (track == null) {
+            track = new Track(access, secret);
+        }
         track.setSymbol(SymbolEnum.get(symbol));
         track.setHedgeType(hedgeType);
         track.setHedgeConfig(PlatContext.getHedgeStrategy(StrategyTypeEnum.get(strategyType)));
