@@ -28,6 +28,7 @@ package com.cloudservice.trade.huobi.enums;
 public enum ContractOrderPriceTypeEnum {
     LIMIT("limit", "限价")
     , OPPONENT("opponent", "对手价 (下单price价格参数不用传, 对手价下单价格是买一和卖一价)")
+    , POST_ONLY("post_only", "只做maker单,post only下单只受用户持仓数量限制")
     , OPTIMAL_5("optimal_5", "最优5档 (下单price价格参数不用传)")
     , optimal_10("optimal_10", "最优10档 (下单price价格参数不用传)")
     , optimal_20("optimal_20", "最优20档 (下单price价格参数不用传)")
