@@ -297,6 +297,19 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
     }
 
     /**
+     * @description 是否停止交易
+     * <p>〈功能详细描述〉</p>
+     *
+     * @author 陈晨
+     * @date 2020/9/26 13:30
+     * @param track, position
+     **/
+    private boolean isStopTrade(Track track, Position position) {
+        // 停止交易 && 平仓张数 > basis, 则不再向下追仓
+        return track.isStopTrade() && position.getVolume().compareTo(BigDecimal.valueOf(track.getHedgeConfig().getBasisVolume())) > 0;
+    }
+
+    /**
      * @description 停止交易小仓止损平仓
      * <p>〈功能详细描述〉</p>
      *
@@ -378,16 +391,6 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      * @param track
      **/
     protected abstract Result cancel(Track track);
-
-    /**
-     * @description 是否停止交易
-     * <p>〈功能详细描述〉</p>
-     *
-     * @author 陈晨
-     * @date 2020/9/26 13:30
-     * @param track, position
-     **/
-    protected abstract boolean isStopTrade(Track track, Position position);
 
     /**
      * @description 获取指定订单信息

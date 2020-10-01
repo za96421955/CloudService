@@ -68,16 +68,6 @@ public class SwapHedgeServiceImpl extends AbstractHedgeService {
     }
 
     @Override
-    protected boolean isStopTrade(Track track, Position position) {
-        // 停止交易, 无持仓 || 平仓张数 > basis, 则不再向下追仓
-        if (!track.isStopTrade()) {
-            return false;
-        }
-        Position positionCheck = swapAccountService.getPositionInfo(track.getAccess(), track.getSecret(), track.getContractCode());
-        return positionCheck == null || position.getVolume().compareTo(BigDecimal.valueOf(track.getHedgeConfig().getBasisVolume())) > 0;
-    }
-
-    @Override
     protected Order getOrderInfo(Track track, String orderId) {
         return swapTradeService.getOrderInfo(track.getAccess(), track.getSecret(), track.getContractCode(), orderId);
     }
