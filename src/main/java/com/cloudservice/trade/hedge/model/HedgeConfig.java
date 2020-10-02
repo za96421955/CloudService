@@ -10,6 +10,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -66,7 +67,8 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     private Map<Integer, BigDecimal> chaseProfitMultipleMap;
     /** 追仓止盈差价 */
     private Map<Integer, BigDecimal> chasePositionDiffMap;
-    // TODO 预估常平差价
+    /** 预估常平差价 */
+    private Map<Integer, BigDecimal> liquidationDiffMap;
 
     // 时间配置
     /** 止盈追踪间隔时间, 毫秒 */
@@ -81,6 +83,7 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         this.positionCNYMap = new HashMap<>();
         this.chaseProfitMultipleMap = new HashMap<>();
         this.chasePositionDiffMap = new HashMap<>();
+        this.liquidationDiffMap = new HashMap<>();
     }
 
     public HedgeConfig(StrategyTypeEnum strategyType) {
@@ -147,9 +150,10 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
             chasePositionDiffMap.put(multiple.getKey(), incomePricePlan.multiply(chaseProfitMultipleMap.get(multiple.getKey())));
             BigDecimal lastMultiple = chaseMultipleMap.get(multiple.getKey() - 1);
             if (lastMultiple == null) {
-                lastMultiple = chaseMultipleMap.get(1);
+                liquidationDiffMap.put(multiple.getKey(), chasePositionDiffMap.get(multiple.getKey()));
+            } else {
+                liquidationDiffMap.put(multiple.getKey(), chasePositionDiffMap.get(multiple.getKey()).divide(lastMultiple, new MathContext(2)));
             }
-            chasePositionDiffMap.put(multiple.getKey(), incomePricePlan.multiply(lastMultiple));
         }
     }
 
@@ -190,6 +194,7 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         System.out.println("getPositionCNYMap: " + cfg.getPositionCNYMap());
         System.out.println("getChaseProfitMultipleMap: " + cfg.getChaseProfitMultipleMap());
         System.out.println("getChasePositionDiffMap: " + cfg.getChasePositionDiffMap());
+        System.out.println("getLiquidationDiffMap: " + cfg.getLiquidationDiffMap());
     }
 
 }
