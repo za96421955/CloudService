@@ -59,7 +59,7 @@ public class Track implements Serializable, Jsonable<Track> {
      * @param volume
      **/
     public BigDecimal getProfitMultiple(long volume) {
-        return this.getHedgeConfig().getChaseProfitMultiple().pow(this.getRangeIndex(volume, false));
+        return this.getHedgeConfig().getProfitMultiple().pow(this.getRangeIndex(volume, false));
     }
 
     /**
@@ -71,7 +71,7 @@ public class Track implements Serializable, Jsonable<Track> {
      * @param volume
      **/
     public BigDecimal getNextRangeMultiple(long volume) {
-        return this.getHedgeConfig().getIntervalMultipleMap().get(this.getRangeIndex(volume, true));
+        return this.getHedgeConfig().getChaseMultipleMap().get(this.getRangeIndex(volume, true));
     }
 
     /**
@@ -89,7 +89,7 @@ public class Track implements Serializable, Jsonable<Track> {
         }
         long calculateVolume = this.getHedgeConfig().getBasisVolume();
         for (int i = 1; i < 7; i++) {
-            BigDecimal multiple = this.getHedgeConfig().getIntervalMultipleMap().get(i);
+            BigDecimal multiple = this.getHedgeConfig().getChaseMultipleMap().get(i);
             calculateVolume = calculateVolume * multiple.longValue();
             if (calculateVolume == volume) {
                 if (isNext) {
@@ -135,15 +135,15 @@ public class Track implements Serializable, Jsonable<Track> {
     public static void main(String[] args) {
         HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS_20X);
         cfg.setBasisVolume(4);
-        cfg.getIntervalMultipleMap().put(1, BigDecimal.valueOf(2));
-        cfg.getIntervalMultipleMap().put(2, BigDecimal.valueOf(2));
-        cfg.getIntervalMultipleMap().put(3, BigDecimal.valueOf(3));
-        cfg.getIntervalMultipleMap().put(4, BigDecimal.valueOf(3));
-        cfg.getIntervalMultipleMap().put(5, BigDecimal.valueOf(2));
-        cfg.getIntervalMultipleMap().put(6, BigDecimal.valueOf(2));
-        cfg.getIntervalMultipleMap().put(7, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(2, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(3, BigDecimal.valueOf(3));
+        cfg.getChaseMultipleMap().put(4, BigDecimal.valueOf(3));
+        cfg.getChaseMultipleMap().put(5, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(6, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(7, BigDecimal.valueOf(2));
         cfg.setIncomePricePlan(new BigDecimal("0.6"));
-        cfg.setChaseProfitMultiple(BigDecimal.valueOf(2));
+        cfg.setProfitMultiple(BigDecimal.valueOf(2));
 
         Track track = new Track();
         track.setHedgeConfig(cfg);

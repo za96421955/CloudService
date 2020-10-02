@@ -6,6 +6,7 @@ import com.cloudservice.base.Result;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.hedge.service.HedgeService;
 import com.cloudservice.trade.huobi.enums.ContractDirectionEnum;
+import com.cloudservice.trade.huobi.enums.ContractLeverRateEnum;
 import com.cloudservice.trade.huobi.enums.ContractTypeEnum;
 import com.cloudservice.trade.huobi.enums.SymbolEnum;
 import com.cloudservice.trade.huobi.model.contract.Order;
@@ -31,6 +32,28 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
     @Autowired
     protected SpotMarketService spotMarketService;
 
+    /**
+     * @description 获取允许交易倍率
+     * <p>〈功能详细描述〉</p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/1 23:26
+     * @param   track, buy, sell
+     */
+    private ContractLeverRateEnum getLeverRate(Track track, Position buy, Position sell) {
+        if (buy != null) {
+            return ContractLeverRateEnum.get(buy.getLeverRate() + "");
+        }
+        if (sell != null) {
+            return ContractLeverRateEnum.get(sell.getLeverRate() + "");
+        }
+        return track.getHedgeConfig().getLeverRate();
+    }
+
     @Override
     public Result positionCheck(Track track) {
         // 持仓检查
@@ -38,6 +61,10 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         Position buy = this.getPosition(positionList, ContractDirectionEnum.BUY);
         Position sell = this.getPosition(positionList, ContractDirectionEnum.SELL);
         logger.info("[{}] track={}, buy={}, sell={}, 持仓检查", LOG_MARK, track, buy, sell);
+
+        // <=> 配置倍率替换
+        ContractLeverRateEnum cfgLeverRate = track.getHedgeConfig().getLeverRate();
+        track.getHedgeConfig().setLeverRate(this.getLeverRate(track, buy, sell));
 
         // 开多下单
         if (!track.isStopTrade() && buy == null) {
@@ -52,6 +79,9 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         if (!track.isStopTrade() && (buy == null || sell == null)) {
             return Result.buildFail("交易开启 & (开多 || 开空)无持仓, 持仓检查不通过");
         }
+
+        // <=> 配置倍率还原
+        track.getHedgeConfig().setLeverRate(cfgLeverRate);
         // 0: 多, 1: 空
         return Result.buildSuccess(buy, sell);
     }
@@ -81,6 +111,11 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         if (track == null) {
             return;
         }
+
+        // <=> 配置倍率替换
+        ContractLeverRateEnum cfgLeverRate = track.getHedgeConfig().getLeverRate();
+        track.getHedgeConfig().setLeverRate(this.getLeverRate(track, buy, sell));
+
         /**
          * 单项止损开仓, 存在极高爆仓风险
          * 因为basis张止损而承担如此风险, 非明智之举
@@ -106,6 +141,9 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
             result = this.stopTradeLittleLossClose(track, buy);
             logger.debug("[{}] track={}, result={}, Sell - 停止交易, 开多止损平仓", LOG_MARK, track, result);
         }
+
+        // <=> 配置倍率还原
+        track.getHedgeConfig().setLeverRate(cfgLeverRate);
     }
 
     /**

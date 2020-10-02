@@ -261,6 +261,29 @@ public final class DateUtil {
     }
 
     /**
+     * @description 获取今天是周几
+     * <p>
+     *     0 - 6
+     *     周日 ~ 周六
+     * </p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/1 22:52
+     * @param   date
+     */
+    public static int week(Object... date) {
+        Calendar calendar = Calendar.getInstance();
+        if (ArrayUtils.isNotEmpty(date)) {
+            calendar.setTime((Date) date[0]);
+        }
+        return calendar.get(Calendar.DAY_OF_WEEK) - 1;
+    }
+
+    /**
      * <p>获取日期为当年的第几天</p>
      *
      * <pre>
@@ -309,7 +332,7 @@ public final class DateUtil {
     }
 
     /**
-     * <p>获取当月天数</p>
+     * <p>获取月天数</p>
      *
      * <pre>
      * DateUtil.monthDay(2017-07-12 12:30:30.512)	=	31
@@ -321,7 +344,7 @@ public final class DateUtil {
      * @param date			java.util.Date
      * @return
      */
-    public static int getDayCount4Month(Object date) {
+    public static int getMonthDays(Object date) {
         if (!isDate(date)) {
             return 0;
         }

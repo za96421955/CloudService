@@ -1,6 +1,7 @@
 package com.cloudservice.plat.context;
 
 import com.cloudservice.plat.enums.StrategyTypeEnum;
+import com.cloudservice.plat.thread.CheckStopTradeScheduler;
 import com.cloudservice.trade.hedge.model.HedgeConfig;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.huobi.enums.SymbolEnum;
@@ -35,6 +36,9 @@ public final class PlatContext {
         if (track == null) {
             return;
         }
+        // 设置交易是否停止
+        track.setStopTrade(CheckStopTradeScheduler.isStopTrade());
+        // 记录缓存
         String key = track.getAccess() + "-" + track.getSymbol().getValue() + "-" + track.getHedgeType();
         trackMap.put(key, track);
     }

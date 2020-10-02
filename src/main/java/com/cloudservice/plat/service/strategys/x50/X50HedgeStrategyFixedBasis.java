@@ -22,20 +22,17 @@ public class X50HedgeStrategyFixedBasis implements StrategyAPI<HedgeConfig> {
     @Override
     public HedgeConfig getStrategy() {
         HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS_50X);
-        cfg.setSteadyAmountUSD(new BigDecimal("51.2"));
-        cfg.setMediocreAmountUSD(new BigDecimal("25.6"));
-        cfg.setRadicalAmountUSD(new BigDecimal("12.8"));
         cfg.setLeverRate(ContractLeverRateEnum.LEVER_50);
         cfg.setBasisVolume(2);
-        cfg.getIntervalMultipleMap().put(1, BigDecimal.valueOf(2));
-        cfg.getIntervalMultipleMap().put(2, BigDecimal.valueOf(2));
-        cfg.getIntervalMultipleMap().put(3, BigDecimal.valueOf(2));
-        cfg.getIntervalMultipleMap().put(4, BigDecimal.valueOf(2));
-        cfg.getIntervalMultipleMap().put(5, BigDecimal.valueOf(2));
-        cfg.getIntervalMultipleMap().put(6, BigDecimal.valueOf(2));
-        cfg.getIntervalMultipleMap().put(7, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(2, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(3, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(4, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(5, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(6, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(7, BigDecimal.valueOf(2));
         cfg.setIncomePricePlan(new BigDecimal("0.6"));
-        cfg.setChaseProfitMultiple(BigDecimal.valueOf(2));
+        cfg.setProfitMultiple(BigDecimal.valueOf(2));
         cfg.setProfitTrackIntervalTime(1000);
         cfg.setTimeout(30);
         return cfg;

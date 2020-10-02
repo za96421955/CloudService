@@ -1,4 +1,4 @@
-package com.cloudservice.trade.hedge.thread;
+package com.cloudservice.plat.thread;
 
 import com.cloudservice.base.BaseService;
 import com.cloudservice.base.Result;
@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
- * 对冲追踪
+ * 对冲追踪JOB
  * <p>
  *     cron: * * * * * * *
  *     cron: 秒 分 时 日 月 周 年
