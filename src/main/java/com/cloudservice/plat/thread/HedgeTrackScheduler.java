@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 对冲追踪JOB
  * <p>
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class HedgeTrackScheduler extends BaseService {
+    private Map<String, Thread> threadPool = new HashMap<>();
 
     @Autowired
     private HedgeServiceFactory hedgeServiceFactory;
@@ -34,23 +38,35 @@ public class HedgeTrackScheduler extends BaseService {
             if (track == null) {
                 continue;
             }
-            try {
-                // 获取对冲服务
-                HedgeService service = hedgeServiceFactory.getHedgeService(track.getHedgeType());
-                // 1, 持仓检查
-                Result result = service.positionCheck(track);
-                if (result.success()) {
-                    Object[] positions = result.getData();
-                    Position buy = (Position) positions[0];
-                    Position sell = (Position) positions[1];
-                    // 2, 双向平仓检查
-                    service.closeCheck(track, buy, sell);
-                } else {
-                    logger.info("[对冲追踪] track={}, result={}, 持仓检查未通过, 无持仓信息", track, result);
-                }
-            } catch (Exception e) {
-                logger.error("[对冲追踪] track={}, 异常, {}", track, e.getMessage(), e);
+            // 获取线程, 若线程正在运行, 则跳过
+            Thread thread = threadPool.get(track.getAccess());
+            if (thread != null) {
+                continue;
             }
+            // 生成工作线程
+            threadPool.put(track.getAccess(), new Thread(() -> {
+                try {
+                    // 获取对冲服务
+                    HedgeService service = hedgeServiceFactory.getHedgeService(track.getHedgeType());
+                    // 1, 持仓检查
+                    Result result = service.positionCheck(track);
+                    if (result.success()) {
+                        Object[] positions = result.getData();
+                        Position buy = (Position) positions[0];
+                        Position sell = (Position) positions[1];
+                        // 2, 双向平仓检查
+                        service.closeCheck(track, buy, sell);
+                    } else {
+                        logger.info("[对冲追踪] track={}, result={}, 持仓检查未通过, 无持仓信息", track, result);
+                    }
+                } catch (Exception e) {
+                    logger.error("[对冲追踪] track={}, 异常, {}", track, e.getMessage(), e);
+                }
+                // 清除工作线程
+                threadPool.put(track.getAccess(), null);
+            }));
+            // 执行工作线程
+            threadPool.get(track.getAccess()).start();
         }
     }
 

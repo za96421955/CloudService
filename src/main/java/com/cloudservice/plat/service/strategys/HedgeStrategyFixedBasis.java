@@ -1,7 +1,6 @@
-package com.cloudservice.plat.service.strategys.x50;
+package com.cloudservice.plat.service.strategys;
 
 import com.cloudservice.plat.enums.StrategyTypeEnum;
-import com.cloudservice.plat.service.strategys.StrategyAPI;
 import com.cloudservice.trade.hedge.model.HedgeConfig;
 import com.cloudservice.trade.huobi.enums.ContractLeverRateEnum;
 import org.springframework.stereotype.Service;
@@ -17,12 +16,12 @@ import java.math.BigDecimal;
  * @date 2020/9/29
  */
 @Service
-public class X50HedgeStrategyFixedBasis implements StrategyAPI<HedgeConfig> {
+public class HedgeStrategyFixedBasis implements StrategyAPI<HedgeConfig> {
 
     @Override
     public HedgeConfig getStrategy() {
-        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS_50X);
-        cfg.setLeverRate(ContractLeverRateEnum.LEVER_50);
+        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS);
+        cfg.setLeverRate(ContractLeverRateEnum.LEVER_75);
         cfg.setBasisVolume(2);
         cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(2));
         cfg.getChaseMultipleMap().put(2, BigDecimal.valueOf(2));

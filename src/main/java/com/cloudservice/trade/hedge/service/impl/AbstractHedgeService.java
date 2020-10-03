@@ -179,9 +179,9 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         if (position == null) {
             return 0;
         }
-        // 获取下区间倍率
-        BigDecimal multiple = track.getNextRangeMultiple(position.getVolume().longValue());
-        // 当前持仓 * 区间倍率 - 当前持仓 = 止损追仓数
+        // 获取追仓倍率
+        BigDecimal multiple = track.getChaseMultiple(position.getVolume().longValue());
+        // 当前持仓 * 追仓倍率 - 当前持仓 = 止损追仓数
         return position.getVolume().multiply(multiple).subtract(position.getVolume()).longValue();
     }
 

@@ -59,47 +59,19 @@ public class Track implements Serializable, Jsonable<Track> {
      * @param volume
      **/
     public BigDecimal getProfitMultiple(long volume) {
-        return this.getHedgeConfig().getProfitMultiple().pow(this.getRangeIndex(volume, false));
+        return hedgeConfig.getChaseProfitMultipleMap().get(hedgeConfig.getChaseIndex(volume));
     }
 
     /**
-     * @description 获取下区间倍率
+     * @description 获取追仓倍率
      * <p>〈功能详细描述〉</p>
      *
      * @author 陈晨
      * @date 2020/9/29 20:14
      * @param volume
      **/
-    public BigDecimal getNextRangeMultiple(long volume) {
-        return this.getHedgeConfig().getChaseMultipleMap().get(this.getRangeIndex(volume, true));
-    }
-
-    /**
-     * @description 获取区间索引
-     * <p>〈功能详细描述〉</p>
-     *
-     * @author 陈晨
-     * @date 2020/9/29 20:57
-     * @param volume, isNext
-     **/
-    private int getRangeIndex(long volume, boolean isNext) {
-        // 基础张数, 无价格区间索引
-        if (this.getHedgeConfig().getBasisVolume() == volume) {
-            return isNext ? 1 : 0;
-        }
-        long calculateVolume = this.getHedgeConfig().getBasisVolume();
-        for (int i = 1; i < 7; i++) {
-            BigDecimal multiple = this.getHedgeConfig().getChaseMultipleMap().get(i);
-            calculateVolume = calculateVolume * multiple.longValue();
-            if (calculateVolume == volume) {
-                if (isNext) {
-                    return i + 1;
-                } else {
-                    return i;
-                }
-            }
-        }
-        return 7;
+    public BigDecimal getChaseMultiple(long volume) {
+        return hedgeConfig.getChaseMultipleMap().get(this.getHedgeConfig().getChaseIndex(volume));
     }
 
     public boolean equals(Track track) {
@@ -133,22 +105,24 @@ public class Track implements Serializable, Jsonable<Track> {
     }
 
     public static void main(String[] args) {
-        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS_20X);
-        cfg.setBasisVolume(4);
-        cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(2));
-        cfg.getChaseMultipleMap().put(2, BigDecimal.valueOf(2));
-        cfg.getChaseMultipleMap().put(3, BigDecimal.valueOf(3));
-        cfg.getChaseMultipleMap().put(4, BigDecimal.valueOf(3));
+        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS);
+        cfg.setBasisVolume(2);
+        cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(3));
+        cfg.getChaseMultipleMap().put(2, BigDecimal.valueOf(3));
+        cfg.getChaseMultipleMap().put(3, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(4, BigDecimal.valueOf(2));
         cfg.getChaseMultipleMap().put(5, BigDecimal.valueOf(2));
         cfg.getChaseMultipleMap().put(6, BigDecimal.valueOf(2));
         cfg.getChaseMultipleMap().put(7, BigDecimal.valueOf(2));
         cfg.setIncomePricePlan(new BigDecimal("0.6"));
         cfg.setProfitMultiple(BigDecimal.valueOf(2));
+        cfg.calculateChaseInfo();
 
+        long positionVolume = 2;
         Track track = new Track();
         track.setHedgeConfig(cfg);
-        System.out.println(track.getProfitMultiple(16));
-        System.out.println(track.getNextRangeMultiple(16));
+        System.out.println(track.getProfitMultiple(positionVolume));
+        System.out.println(track.getChaseMultiple(positionVolume));
     }
 
 }

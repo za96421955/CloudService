@@ -39,7 +39,7 @@ public class FileController extends BaseController {
             track.setAccess("access");
             track.setSymbol(SymbolEnum.ETH);
             track.setHedgeType(HedgeServiceFactory.CONTRACT);
-            track.setHedgeConfig(PlatContext.getHedgeStrategy(StrategyTypeEnum.FIXED_BASIS_20X));
+            track.setHedgeConfig(PlatContext.getHedgeStrategy(StrategyTypeEnum.FIXED_BASIS));
             fileService.writeTrack(track);
             return Result.buildSuccess();
         } catch (Exception e) {
@@ -63,7 +63,7 @@ public class FileController extends BaseController {
     @Description("记录配置信息")
     public Result writeHedgeConfig() {
         try {
-            HedgeConfig hedgeConfig = PlatContext.getHedgeStrategy(StrategyTypeEnum.FIXED_BASIS_20X);
+            HedgeConfig hedgeConfig = PlatContext.getHedgeStrategy(StrategyTypeEnum.FIXED_BASIS);
             fileService.writeHedgeConfig(hedgeConfig);
             return Result.buildSuccess();
         } catch (Exception e) {

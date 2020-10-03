@@ -55,6 +55,7 @@ public final class PlatContext {
         if (hedgeConfig == null) {
             return;
         }
+        hedgeConfig.calculateChaseInfo();
         hedgeStrategyMap.put(hedgeConfig.getStrategyType(), hedgeConfig);
     }
 

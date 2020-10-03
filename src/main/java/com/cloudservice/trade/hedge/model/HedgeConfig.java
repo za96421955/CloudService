@@ -37,12 +37,6 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     // 基础配置
     /** 策略类型 */
     private StrategyTypeEnum strategyType;
-//    /** 稳健持仓金额(USD) */
-//    private BigDecimal steadyAmountUSD;
-//    /** 中庸持仓金额(USD) */
-//    private BigDecimal mediocreAmountUSD;
-//    /** 激进持仓金额(USD) */
-//    private BigDecimal radicalAmountUSD;
 
     // 开仓配置
     /** 倍数 */
@@ -67,8 +61,6 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     private Map<Integer, BigDecimal> chaseProfitMultipleMap;
     /** 追仓止盈差价 */
     private Map<Integer, BigDecimal> chasePositionDiffMap;
-    /** 预估常平差价 */
-    private Map<Integer, BigDecimal> liquidationDiffMap;
 
     // 时间配置
     /** 止盈追踪间隔时间, 毫秒 */
@@ -78,12 +70,11 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
 
     public HedgeConfig() {
         this.chaseMultipleMap = new TreeMap<>();
-        this.chaseVolumeMap = new HashMap<>();
-        this.positionUSDMap = new HashMap<>();
-        this.positionCNYMap = new HashMap<>();
-        this.chaseProfitMultipleMap = new HashMap<>();
-        this.chasePositionDiffMap = new HashMap<>();
-        this.liquidationDiffMap = new HashMap<>();
+        this.chaseVolumeMap = new TreeMap<>();
+        this.positionUSDMap = new TreeMap<>();
+        this.positionCNYMap = new TreeMap<>();
+        this.chaseProfitMultipleMap = new TreeMap<>();
+        this.chasePositionDiffMap = new TreeMap<>();
     }
 
     public HedgeConfig(StrategyTypeEnum strategyType) {
@@ -132,13 +123,6 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
      * @date    2020/10/2 0:44
      */
     public void calculateChaseInfo() {
-        // full 8 - 10
-//        for (int i = 8; i <= 10; i++) {
-//            if (chaseMultipleMap.get(i) == null) {
-//                chaseMultipleMap.put(i, chaseMultipleMap.get(STEADY_INDEX));
-//            }
-//        }
-        // calculate info
         long currVolume = basisVolume;
         for (Map.Entry<Integer, BigDecimal> multiple : chaseMultipleMap.entrySet()) {
             long chaseVolume = currVolume * (multiple.getValue().subtract(BigDecimal.ONE)).longValue();
@@ -146,15 +130,36 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
             currVolume += chaseVolume;
             positionUSDMap.put(multiple.getKey(), BigDecimal.valueOf(currVolume * 10));
             positionCNYMap.put(multiple.getKey(), this.calculateCNYByUSD(positionUSDMap.get(multiple.getKey())));
-            chaseProfitMultipleMap.put(multiple.getKey(), profitMultiple.pow(multiple.getKey()));
+            chaseProfitMultipleMap.put(multiple.getKey(), profitMultiple.pow(multiple.getKey() - 1));
             chasePositionDiffMap.put(multiple.getKey(), incomePricePlan.multiply(chaseProfitMultipleMap.get(multiple.getKey())));
-            BigDecimal lastMultiple = chaseMultipleMap.get(multiple.getKey() - 1);
-            if (lastMultiple == null) {
-                liquidationDiffMap.put(multiple.getKey(), chasePositionDiffMap.get(multiple.getKey()));
-            } else {
-                liquidationDiffMap.put(multiple.getKey(), chasePositionDiffMap.get(multiple.getKey()).divide(lastMultiple, new MathContext(2)));
+        }
+    }
+
+    /**
+     * @description 获取追仓次数
+     * <p>〈功能详细描述〉</p>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/3 19:20
+     * @param   volume
+     */
+    public int getChaseIndex(long volume) {
+        boolean isGe = false;
+        int lastIndex = 1;
+        for (Map.Entry<Integer, Long> entry : chaseVolumeMap.entrySet()) {
+            lastIndex = entry.getKey();
+            long currVolume = entry.getValue() / (chaseMultipleMap.get(entry.getKey()).intValue() - 1);
+            if (volume == currVolume) {
+                return entry.getKey();
+            }
+            if (volume > currVolume) {
+                isGe = true;
+            }
+            if (isGe && volume < currVolume) {
+                return entry.getKey();
             }
         }
+        return lastIndex;
     }
 
     /**
@@ -172,20 +177,17 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     }
 
     public static void main(String[] args) {
-        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS_20X);
-        cfg.setLeverRate(ContractLeverRateEnum.LEVER_20);
+        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS);
         cfg.setBasisVolume(2);
-        cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(3));
         cfg.getChaseMultipleMap().put(2, BigDecimal.valueOf(3));
-        cfg.getChaseMultipleMap().put(3, BigDecimal.valueOf(3));
-        cfg.getChaseMultipleMap().put(4, BigDecimal.valueOf(3));
+        cfg.getChaseMultipleMap().put(3, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(4, BigDecimal.valueOf(2));
         cfg.getChaseMultipleMap().put(5, BigDecimal.valueOf(2));
         cfg.getChaseMultipleMap().put(6, BigDecimal.valueOf(2));
         cfg.getChaseMultipleMap().put(7, BigDecimal.valueOf(2));
         cfg.setIncomePricePlan(new BigDecimal("0.6"));
         cfg.setProfitMultiple(BigDecimal.valueOf(2));
-        cfg.setProfitTrackIntervalTime(1000);
-        cfg.setTimeout(30);
         cfg.calculateChaseInfo();
 
         System.out.println("getChaseMultipleMap: " + cfg.getChaseMultipleMap());
@@ -194,7 +196,6 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         System.out.println("getPositionCNYMap: " + cfg.getPositionCNYMap());
         System.out.println("getChaseProfitMultipleMap: " + cfg.getChaseProfitMultipleMap());
         System.out.println("getChasePositionDiffMap: " + cfg.getChasePositionDiffMap());
-        System.out.println("getLiquidationDiffMap: " + cfg.getLiquidationDiffMap());
     }
 
 }
