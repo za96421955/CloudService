@@ -118,7 +118,7 @@ public class Track implements Serializable, Jsonable<Track> {
         cfg.setProfitMultiple(BigDecimal.valueOf(2));
         cfg.calculateChaseInfo();
 
-        long positionVolume = 2;
+        long positionVolume = 32;
         Track track = new Track();
         track.setHedgeConfig(cfg);
         System.out.println(track.getProfitMultiple(positionVolume));
