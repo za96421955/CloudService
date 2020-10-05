@@ -5,12 +5,12 @@ import com.cloudservice.plat.thread.CheckStopTradeScheduler;
 import com.cloudservice.trade.hedge.model.HedgeConfig;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.huobi.enums.SymbolEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * 平台上下文
@@ -21,8 +21,54 @@ import java.util.Map;
  * @date 2020/9/29
  */
 public final class PlatContext {
+    private static final Logger logger = LoggerFactory.getLogger(PlatContext.class);
 
     private PlatContext() {}
+
+    /** 现价追踪 */
+    private static final Map<Track, BigDecimal> lePriceTrack = new HashMap<>();
+    private static final Map<Track, BigDecimal> gePriceTrack = new HashMap<>();
+    public static void setLePriceTrack(Track track, BigDecimal price) {
+        if (price == null) {
+            lePriceTrack.remove(track);
+        } else {
+            lePriceTrack.put(track, price);
+        }
+    }
+    public static void setGePriceTrack(Track track, BigDecimal price) {
+        if (price == null) {
+            gePriceTrack.remove(track);
+        } else {
+            gePriceTrack.put(track, price);
+        }
+    }
+    public static Set<Track> getTriggerTrack(BigDecimal price) {
+        Set<Track> triggerSet = new HashSet<>();
+        for (Map.Entry<Track, BigDecimal> le : lePriceTrack.entrySet()) {
+            if (le == null || le.getKey() == null || le.getValue() == null) {
+                continue;
+            }
+            if (price.compareTo(le.getValue()) <= 0) {
+                triggerSet.add(le.getKey());
+            }
+        }
+        for (Map.Entry<Track, BigDecimal> ge : gePriceTrack.entrySet()) {
+            if (ge == null || ge.getKey() == null || ge.getValue() == null) {
+                continue;
+            }
+            if (price.compareTo(ge.getValue()) >= 0) {
+                triggerSet.add(ge.getKey());
+            }
+        }
+        if (triggerSet.size() > 0) {
+            logger.info("[现价追踪] LE={}, GE={}, trigger={}, 获取被触发追踪"
+                    , lePriceTrack.values(), gePriceTrack.values(), triggerSet);
+        } else {
+            logger.debug("[现价追踪] LE={}, GE={}, trigger={}, 获取被触发追踪"
+                    , lePriceTrack.values(), gePriceTrack.values(), triggerSet);
+        }
+        return triggerSet;
+    }
 
     /** 委托交易 */
     private static final Map<String, Track> trackMap = new HashMap<>();

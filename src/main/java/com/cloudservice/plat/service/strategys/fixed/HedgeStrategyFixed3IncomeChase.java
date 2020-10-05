@@ -35,7 +35,7 @@ public class HedgeStrategyFixed3IncomeChase implements StrategyAPI<HedgeConfig> 
         cfg.getChaseMultipleMap().put(7, BigDecimal.valueOf(2));
         cfg.setIncomePricePlan(new BigDecimal("0.6"));
         cfg.setProfitMultiple(BigDecimal.valueOf(2));
-        cfg.setProfitTrackIntervalTime(1000);
+        cfg.setProfitTrackIntervalTime(500);
         cfg.setTimeout(30);
         cfg.calculateChaseInfo();
 

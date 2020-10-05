@@ -231,8 +231,13 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         }
         // 判断是否可以平仓
         if (!this.isClose(track, position, incomeMultiple, BigDecimal.ZERO)) {
+            // 记录触发价
+            this.recordOrRemoveTriggerPrice(track, position, incomeMultiple, true);
             return Result.buildFail("not allowed close");
         }
+        // 移除触发价
+        this.recordOrRemoveTriggerPrice(track, position, incomeMultiple, false);
+
         // 平仓下单
         Result result = this.closeOrder(track, position, lossVolume);
         if (result.success()) {
@@ -243,6 +248,35 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         logger.info("[{}] track={}, position={}, result={}, 平仓下单失败, 则全部撤单, 重新下单"
                 , LOG_MARK, track, position, result);
         return this.closeOrder(track, position, lossVolume);
+    }
+
+    /**
+     * @description 记录/移除, 追踪触发价
+     * <p>〈功能详细描述〉</p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 23:06
+     * @param   track, position, incomeMultiple, isRecord
+     */
+    private void recordOrRemoveTriggerPrice(Track track, Position position, BigDecimal incomeMultiple, boolean isRecord) {
+        if (!isRecord) {
+            if (ContractDirectionEnum.BUY.getValue().equals(position.getDirection())) {
+                PlatContext.setGePriceTrack(track, null);
+            } else {
+                PlatContext.setLePriceTrack(track, null);
+            }
+            return;
+        }
+        BigDecimal profitPrice = track.getHedgeConfig().getIncomePricePlan().multiply(incomeMultiple);
+        if (ContractDirectionEnum.BUY.getValue().equals(position.getDirection())) {
+            PlatContext.setGePriceTrack(track, position.getCostHold().add(profitPrice));
+        } else {
+            PlatContext.setLePriceTrack(track, position.getCostHold().subtract(profitPrice));
+        }
     }
 
     /**

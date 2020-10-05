@@ -8,6 +8,7 @@ import com.cloudservice.trade.huobi.enums.ContractLeverRateEnum;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 复利策略
@@ -66,7 +67,7 @@ public abstract class AbstractHedgeStrategyCompound implements StrategyAPI<Hedge
                                 cfg.getChaseMultipleMap().put(7, BigDecimal.valueOf(2));
                                 cfg.setIncomePricePlan(new BigDecimal("0.6"));
                                 cfg.setProfitMultiple(BigDecimal.valueOf(2));
-                                cfg.setProfitTrackIntervalTime(1000);
+                                cfg.setProfitTrackIntervalTime(500);
                                 cfg.setTimeout(30);
                                 cfg.calculateChaseInfo();
                                 cfgList.add(cfg);
@@ -79,44 +80,44 @@ public abstract class AbstractHedgeStrategyCompound implements StrategyAPI<Hedge
         return cfgList;
     }
 
-//    public static void main(String[] args) {
-//        HedgeStrategyCompoundLow low = new HedgeStrategyCompoundLow();
-//        HedgeStrategyCompoundIn in = new HedgeStrategyCompoundIn();
-//        HedgeStrategyCompoundHigh high = new HedgeStrategyCompoundHigh();
-//        HedgeStrategyCompoundLarge large = new HedgeStrategyCompoundLarge();
-//
-//        Map<Integer, HedgeConfig> fitCfgMap = HedgeConfig.getFitConfigMapByPrice(
-//                BigDecimal.valueOf(200), low.getStrategyList());
-//        System.out.println("radical: " + fitCfgMap.get(HedgeConfig.TYPE_RADICAL));
-//        System.out.println("normal: " + fitCfgMap.get(HedgeConfig.TYPE_NORMAL));
-//        System.out.println("steady: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY));
-//        System.out.println("steadyPlus: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY_PLUS));
-//        System.out.println();
-//
-//        fitCfgMap = HedgeConfig.getFitConfigMapByPrice(
-//                BigDecimal.valueOf(300), low.getStrategyList());
-//        System.out.println("radical: " + fitCfgMap.get(HedgeConfig.TYPE_RADICAL));
-//        System.out.println("normal: " + fitCfgMap.get(HedgeConfig.TYPE_NORMAL));
-//        System.out.println("steady: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY));
-//        System.out.println("steadyPlus: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY_PLUS));
-//        System.out.println();
-//
-//        fitCfgMap = HedgeConfig.getFitConfigMapByPrice(
-//                BigDecimal.valueOf(500), low.getStrategyList());
-//        System.out.println("radical: " + fitCfgMap.get(HedgeConfig.TYPE_RADICAL));
-//        System.out.println("normal: " + fitCfgMap.get(HedgeConfig.TYPE_NORMAL));
-//        System.out.println("steady: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY));
-//        System.out.println("steadyPlus: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY_PLUS));
-//        System.out.println();
-//
-//        fitCfgMap = HedgeConfig.getFitConfigMapByPrice(
-//                BigDecimal.valueOf(1000), low.getStrategyList());
-//        System.out.println("radical: " + fitCfgMap.get(HedgeConfig.TYPE_RADICAL));
-//        System.out.println("normal: " + fitCfgMap.get(HedgeConfig.TYPE_NORMAL));
-//        System.out.println("steady: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY));
-//        System.out.println("steadyPlus: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY_PLUS));
-//        System.out.println();
-//    }
+    public static void main(String[] args) {
+        HedgeStrategyCompoundLow low = new HedgeStrategyCompoundLow();
+        HedgeStrategyCompoundIn in = new HedgeStrategyCompoundIn();
+        HedgeStrategyCompoundHigh high = new HedgeStrategyCompoundHigh();
+        HedgeStrategyCompoundLarge large = new HedgeStrategyCompoundLarge();
+
+        Map<Integer, HedgeConfig> fitCfgMap = HedgeConfig.getFitConfigMapByPrice(
+                BigDecimal.valueOf(200), low.getStrategyList());
+        System.out.println("radical: " + fitCfgMap.get(HedgeConfig.TYPE_RADICAL));
+        System.out.println("normal: " + fitCfgMap.get(HedgeConfig.TYPE_NORMAL));
+        System.out.println("steady: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY));
+        System.out.println("steadyPlus: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY_PLUS));
+        System.out.println();
+
+        fitCfgMap = HedgeConfig.getFitConfigMapByPrice(
+                BigDecimal.valueOf(300), low.getStrategyList());
+        System.out.println("radical: " + fitCfgMap.get(HedgeConfig.TYPE_RADICAL));
+        System.out.println("normal: " + fitCfgMap.get(HedgeConfig.TYPE_NORMAL));
+        System.out.println("steady: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY));
+        System.out.println("steadyPlus: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY_PLUS));
+        System.out.println();
+
+        fitCfgMap = HedgeConfig.getFitConfigMapByPrice(
+                BigDecimal.valueOf(500), low.getStrategyList());
+        System.out.println("radical: " + fitCfgMap.get(HedgeConfig.TYPE_RADICAL));
+        System.out.println("normal: " + fitCfgMap.get(HedgeConfig.TYPE_NORMAL));
+        System.out.println("steady: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY));
+        System.out.println("steadyPlus: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY_PLUS));
+        System.out.println();
+
+        fitCfgMap = HedgeConfig.getFitConfigMapByPrice(
+                BigDecimal.valueOf(1000), low.getStrategyList());
+        System.out.println("radical: " + fitCfgMap.get(HedgeConfig.TYPE_RADICAL));
+        System.out.println("normal: " + fitCfgMap.get(HedgeConfig.TYPE_NORMAL));
+        System.out.println("steady: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY));
+        System.out.println("steadyPlus: " + fitCfgMap.get(HedgeConfig.TYPE_STEADY_PLUS));
+        System.out.println();
+    }
 
 }
 
