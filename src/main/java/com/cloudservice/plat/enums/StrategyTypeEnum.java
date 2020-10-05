@@ -14,6 +14,12 @@ public enum StrategyTypeEnum {
     , FIXED_2_INCOME_CHASE("fixed2IncomeChase", "2次收益追逐固定策略")
     , FIXED_3_INCOME_CHASE("fixed3IncomeChase", "3次收益追逐固定策略")
     , FIXED_4_INCOME_CHASE("fixed4IncomeChase", "4次收益追逐固定策略")
+
+    /** 复利策略 */
+    , COMPOUND_LOW("compoundLow", "低资产复利策略")
+    , COMPOUND_IN("compoundIn", "中资产复利策略")
+    , COMPOUND_HIGH("compoundHigh", "高资产复利策略")
+    , COMPOUND_LARGE("compoundLarge", "大额资产复利策略")
     ;
 
     private final String value;

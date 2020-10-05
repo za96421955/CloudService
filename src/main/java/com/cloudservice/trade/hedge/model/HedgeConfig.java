@@ -6,13 +6,13 @@ import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.trade.huobi.enums.ContractLeverRateEnum;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -26,13 +26,19 @@ import java.util.TreeMap;
  */
 @Getter
 @Setter
-@ToString
 public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     private static final long serialVersionUID = -4336975265204074693L;
     private static final BigDecimal USD_CNY_RATE = new BigDecimal("7");
-    private static final int RADICAL_INDEX = 5;
-    private static final int MEDIOCRE_INDEX = 6;
-    private static final int STEADY_INDEX = 7;
+
+    private static final int INDEX_RADICAL = 4;
+    private static final int INDEX_NORMAL = 5;
+    private static final int INDEX_STEADY = 6;
+    private static final int INDEX_STEADY_PLUS = 7;
+
+    public static final int TYPE_RADICAL = 0;
+    public static final int TYPE_NORMAL = 1;
+    public static final int TYPE_STEADY = 2;
+    public static final int TYPE_STEADY_PLUS = 3;
 
     // 基础配置
     /** 策略类型 */
@@ -49,8 +55,10 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     private Map<Integer, Long> chaseVolumeMap;
     /** 持仓所需USD */
     private Map<Integer, BigDecimal> positionUSDMap;
-    /** 持仓所需CNY */
-    private Map<Integer, BigDecimal> positionCNYMap;
+    /** 75X持仓所需CNY */
+    private Map<Integer, BigDecimal> position75XCNYMap;
+    /** 建议资产 */
+    private Map<Integer, BigDecimal> recommendAssetsMap;
 
     // 收益配置
     /** 计划收益价格 */
@@ -72,7 +80,8 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         this.chaseMultipleMap = new TreeMap<>();
         this.chaseVolumeMap = new TreeMap<>();
         this.positionUSDMap = new TreeMap<>();
-        this.positionCNYMap = new TreeMap<>();
+        this.position75XCNYMap = new TreeMap<>();
+        this.recommendAssetsMap = new TreeMap<>();
         this.chaseProfitMultipleMap = new TreeMap<>();
         this.chasePositionDiffMap = new TreeMap<>();
     }
@@ -111,6 +120,18 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         return JSONObject.parseObject(json, this.getClass());
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(strategyType.getValue());
+        sb.append("@").append(incomePricePlan).append("-").append(profitMultiple);
+        sb.append("@").append(basisVolume).append("-");
+        for (BigDecimal multiple : chaseMultipleMap.values()) {
+            sb.append(multiple);
+        }
+        return sb.toString();
+    }
+
     /**
      * @description 计算追仓信息
      * <p>〈功能详细描述〉</p>
@@ -129,7 +150,10 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
             chaseVolumeMap.put(multiple.getKey(), chaseVolume);
             currVolume += chaseVolume;
             positionUSDMap.put(multiple.getKey(), BigDecimal.valueOf(currVolume * 10));
-            positionCNYMap.put(multiple.getKey(), this.calculateCNYByUSD(positionUSDMap.get(multiple.getKey())));
+            position75XCNYMap.put(multiple.getKey(),
+                    this.calculateCNYByUSD(positionUSDMap.get(multiple.getKey()))
+                            .divide(BigDecimal.valueOf(75), new MathContext(2)));
+            recommendAssetsMap.put(multiple.getKey(), position75XCNYMap.get(multiple.getKey()).multiply(BigDecimal.valueOf(2)));
             chaseProfitMultipleMap.put(multiple.getKey(), profitMultiple.pow(multiple.getKey() - 1));
             chasePositionDiffMap.put(multiple.getKey(), incomePricePlan.multiply(chaseProfitMultipleMap.get(multiple.getKey())));
         }
@@ -176,26 +200,200 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         return usd.multiply(USD_CNY_RATE);
     }
 
-    public static void main(String[] args) {
-        HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_BASIS);
-        cfg.setBasisVolume(2);
-        cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(3));
-        cfg.getChaseMultipleMap().put(2, BigDecimal.valueOf(3));
-        cfg.getChaseMultipleMap().put(3, BigDecimal.valueOf(2));
-        cfg.getChaseMultipleMap().put(4, BigDecimal.valueOf(2));
-        cfg.getChaseMultipleMap().put(5, BigDecimal.valueOf(2));
-        cfg.getChaseMultipleMap().put(6, BigDecimal.valueOf(2));
-        cfg.getChaseMultipleMap().put(7, BigDecimal.valueOf(2));
-        cfg.setIncomePricePlan(new BigDecimal("0.6"));
-        cfg.setProfitMultiple(BigDecimal.valueOf(2));
-        cfg.calculateChaseInfo();
+    /**
+     * @description 获取激进价格
+     * <p>〈功能详细描述〉</p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 16:25
+     */
+    public BigDecimal getRadicalPrice() {
+        return recommendAssetsMap.get(INDEX_RADICAL);
+    }
 
-        System.out.println("getChaseMultipleMap: " + cfg.getChaseMultipleMap());
-        System.out.println("getChaseVolumeMap: " + cfg.getChaseVolumeMap());
-        System.out.println("getPositionUSDMap: " + cfg.getPositionUSDMap());
-        System.out.println("getPositionCNYMap: " + cfg.getPositionCNYMap());
-        System.out.println("getChaseProfitMultipleMap: " + cfg.getChaseProfitMultipleMap());
-        System.out.println("getChasePositionDiffMap: " + cfg.getChasePositionDiffMap());
+    /**
+     * @description 获取常规价格
+     * <p>〈功能详细描述〉</p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 16:25
+     */
+    public BigDecimal getNormalPrice() {
+        return recommendAssetsMap.get(INDEX_NORMAL);
+    }
+
+    /**
+     * @description 获取稳健价格
+     * <p>〈功能详细描述〉</p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 16:26
+     */
+    public BigDecimal getSteadyPrice() {
+        return recommendAssetsMap.get(INDEX_STEADY);
+    }
+
+    /**
+     * @description 获取超稳健价格
+     * <p>〈功能详细描述〉</p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 16:26
+     */
+    public BigDecimal getSteadyPlusPrice() {
+        return recommendAssetsMap.get(INDEX_STEADY_PLUS);
+    }
+
+    /**
+     * @description 获取合适的配置
+     * <p>
+     *     1，高追少张
+     * </p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 16:30
+     */
+    public static HedgeConfig getFitConfig(List<HedgeConfig> cfgList) {
+        if (CollectionUtils.isEmpty(cfgList)) {
+            return null;
+        }
+        HedgeConfig fit = null;
+        for (HedgeConfig cfg : cfgList) {
+            if (cfg == null) {
+                continue;
+            }
+            if (fit == null) {
+                fit = cfg;
+                continue;
+            }
+            // 1，高追少张
+            boolean isAllEq = true;
+            for (int i = 1; i <= 4; i++) {
+                BigDecimal cfgMultiple = cfg.getChaseMultipleMap().get(i);
+                BigDecimal fitMultiple = fit.getChaseMultipleMap().get(i);
+                if (cfgMultiple.compareTo(fitMultiple) == 0) {
+                    continue;
+                }
+                isAllEq = false;
+                if (cfgMultiple.compareTo(fitMultiple) > 0) {
+                    fit = cfg;
+                }
+                break;
+            }
+            // 2, 全部倍数相等, 高张优先
+            if (isAllEq && cfg.getBasisVolume() > fit.getBasisVolume()) {
+                fit = cfg;
+            }
+        }
+        return fit;
+    }
+
+    /**
+     * @description 指定资产, 获取合适的配置集合
+     * <p>
+     *     0, 激进配置
+     *     1，常规配置
+     *     2，稳健配置
+     * </p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 16:51
+     */
+    public static Map<Integer, List<HedgeConfig>> getFitConfigListMapByPrice(
+            BigDecimal price, List<HedgeConfig> cfgList) {
+        Map<Integer, List<HedgeConfig>> cfgMap = new TreeMap<>();
+        cfgMap.put(TYPE_RADICAL, new ArrayList<>());
+        cfgMap.put(TYPE_NORMAL, new ArrayList<>());
+        cfgMap.put(TYPE_STEADY, new ArrayList<>());
+        cfgMap.put(TYPE_STEADY_PLUS, new ArrayList<>());
+        for (HedgeConfig cfg : cfgList) {
+            if (cfg == null) {
+                continue;
+            }
+            cfg.calculateChaseInfo();
+            // 1, price >= steadyPlusPrice, add 3
+            if (price.compareTo(cfg.getSteadyPlusPrice()) >= 0) {
+                cfgMap.get(TYPE_STEADY_PLUS).add(cfg);
+                continue;
+            }
+            // 1, price >= steadyPrice, add 2
+            if (price.compareTo(cfg.getSteadyPrice()) >= 0) {
+                cfgMap.get(TYPE_STEADY).add(cfg);
+                continue;
+            }
+            // 2, price >= normalPrice, add 1
+            if (price.compareTo(cfg.getNormalPrice()) >= 0) {
+                cfgMap.get(TYPE_NORMAL).add(cfg);
+                continue;
+            }
+            // 3, price >= radicalPrice, add 0
+            if (price.compareTo(cfg.getRadicalPrice()) >= 0) {
+                cfgMap.get(TYPE_RADICAL).add(cfg);
+            }
+            // 4, pass
+        }
+        // 空集合填充
+        if (cfgMap.get(TYPE_STEADY).isEmpty()) {
+            cfgMap.get(TYPE_STEADY).addAll(cfgMap.get(TYPE_STEADY_PLUS));
+        }
+        if (cfgMap.get(TYPE_NORMAL).isEmpty()) {
+            cfgMap.get(TYPE_NORMAL).addAll(cfgMap.get(TYPE_STEADY));
+        }
+        if (cfgMap.get(TYPE_RADICAL).isEmpty()) {
+            cfgMap.get(TYPE_RADICAL).addAll(cfgMap.get(TYPE_NORMAL));
+        }
+        return cfgMap;
+    }
+
+    /**
+     * @description 指定资产, 获取合适的配置
+     * <p>
+     *     0, 激进配置
+     *     1，常规配置
+     *     2，稳健配置
+     * </p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 16:51
+     */
+    public static Map<Integer, HedgeConfig> getFitConfigMapByPrice(
+            BigDecimal price, List<HedgeConfig> cfgList) {
+        Map<Integer, List<HedgeConfig>> fitCfgListMap = HedgeConfig.getFitConfigListMapByPrice(
+                price, cfgList);
+        Map<Integer, HedgeConfig> fitCfgMap = new TreeMap<>();
+        fitCfgMap.put(TYPE_RADICAL, HedgeConfig.getFitConfig(fitCfgListMap.get(TYPE_RADICAL)));
+        fitCfgMap.put(TYPE_NORMAL, HedgeConfig.getFitConfig(fitCfgListMap.get(TYPE_NORMAL)));
+        fitCfgMap.put(TYPE_STEADY, HedgeConfig.getFitConfig(fitCfgListMap.get(TYPE_STEADY)));
+        fitCfgMap.put(TYPE_STEADY_PLUS, HedgeConfig.getFitConfig(fitCfgListMap.get(TYPE_STEADY_PLUS)));
+        return fitCfgMap;
     }
 
 }

@@ -5,6 +5,7 @@ import com.cloudservice.plat.thread.CheckStopTradeScheduler;
 import com.cloudservice.trade.hedge.model.HedgeConfig;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.huobi.enums.SymbolEnum;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,19 +45,24 @@ public final class PlatContext {
     }
 
     /** 策略配置 */
-    private static final Map<StrategyTypeEnum, HedgeConfig> hedgeStrategyMap = new HashMap<>();
-    public static List<HedgeConfig> getHedgeStrategyList() {
-        return new ArrayList<>(hedgeStrategyMap.values());
+    private static final Map<StrategyTypeEnum, List<HedgeConfig>> hedgeStrategyMap = new HashMap<>();
+    public static Map<StrategyTypeEnum, List<HedgeConfig>> getHedgeStrategyMap() {
+        return hedgeStrategyMap;
     }
-    public static HedgeConfig getHedgeStrategy(StrategyTypeEnum strategyType) {
-        return hedgeStrategyMap.get(strategyType);
+    public static List<HedgeConfig> getHedgeStrategyList(StrategyTypeEnum strategyType) {
+        List<HedgeConfig> cfgList = hedgeStrategyMap.get(strategyType);
+        if (CollectionUtils.isEmpty(cfgList)) {
+            hedgeStrategyMap.put(strategyType, new ArrayList<>());
+            cfgList = hedgeStrategyMap.get(strategyType);
+        }
+        return cfgList;
     }
     public synchronized static void setHedgeStrategy(HedgeConfig hedgeConfig) {
         if (hedgeConfig == null) {
             return;
         }
         hedgeConfig.calculateChaseInfo();
-        hedgeStrategyMap.put(hedgeConfig.getStrategyType(), hedgeConfig);
+        getHedgeStrategyList(hedgeConfig.getStrategyType()).add(hedgeConfig);
     }
 
 }

@@ -54,7 +54,7 @@ public class StrategyController extends BaseController {
     @Description("获取对冲策略信息集合")
     public Result getHedgeStrategyList() {
         try {
-            return Result.buildSuccess(PlatContext.getHedgeStrategyList());
+            return Result.buildSuccess(PlatContext.getHedgeStrategyMap());
         } catch (Exception e) {
             logger.error("[策略] 获取对冲策略信息集合异常, {}", e.getMessage(), e);
             throw new RuntimeException(e.getMessage());

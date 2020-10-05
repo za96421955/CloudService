@@ -68,7 +68,7 @@ public class TradeController extends BaseController {
         }
         track.setSymbol(SymbolEnum.get(symbol));
         track.setHedgeType(hedgeType);
-        track.setHedgeConfig(PlatContext.getHedgeStrategy(StrategyTypeEnum.get(strategyType)));
+        track.setHedgeConfig(PlatContext.getHedgeStrategyList(StrategyTypeEnum.get(strategyType)).get(0));
         if (incomePricePlan != null) {
             track.getHedgeConfig().setIncomePricePlan(incomePricePlan);
         }

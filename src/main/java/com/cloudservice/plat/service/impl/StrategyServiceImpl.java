@@ -31,7 +31,9 @@ public class StrategyServiceImpl extends BaseService implements StrategyService 
     @Override
     public void initHedgeStrategy() {
         for (StrategyAPI<HedgeConfig> api : strategyAPIList) {
-            this.recordHedgeStrategy(api.getStrategy());
+            for (HedgeConfig cfg : api.getStrategyList()) {
+                this.recordHedgeStrategy(cfg);
+            }
         }
     }
 

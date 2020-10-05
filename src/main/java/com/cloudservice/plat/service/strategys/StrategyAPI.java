@@ -1,5 +1,7 @@
 package com.cloudservice.plat.service.strategys;
 
+import java.util.List;
+
 /**
  * 策略API
  * <p>〈功能详细描述〉</p>
@@ -17,6 +19,6 @@ public interface StrategyAPI<T> {
      * @author 陈晨
      * @date 2020/9/29 17:26
      **/
-    T getStrategy();
+    List<T> getStrategyList();
 
 }
