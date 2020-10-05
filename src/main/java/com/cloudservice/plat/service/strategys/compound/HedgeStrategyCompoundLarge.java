@@ -4,6 +4,7 @@ import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.trade.hedge.model.HedgeConfig;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -27,6 +28,16 @@ public class HedgeStrategyCompoundLarge extends AbstractHedgeStrategyCompound {
     @Override
     public List<HedgeConfig> getStrategyList() {
         return this.getConfigList(10, 20, 4, 10);
+    }
+
+    @Override
+    public BigDecimal getMinAssets() {
+        return BigDecimal.valueOf(100000);
+    }
+
+    @Override
+    public BigDecimal getMaxAssets() {
+        return null;
     }
 
 }

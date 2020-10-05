@@ -3,6 +3,7 @@ package com.cloudservice.trade.hedge.service.impl;
 import com.cloudservice.base.Result;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.huobi.enums.*;
+import com.cloudservice.trade.huobi.model.contract.Account;
 import com.cloudservice.trade.huobi.model.contract.Order;
 import com.cloudservice.trade.huobi.model.contract.Position;
 import com.cloudservice.trade.huobi.model.spot.Kline;
@@ -12,7 +13,6 @@ import com.cloudservice.trade.huobi.service.swap.SwapTradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -32,6 +32,11 @@ public class SwapHedgeServiceImpl extends AbstractHedgeService {
     private SwapAccountService swapAccountService;
     @Autowired
     private SwapTradeService swapTradeService;
+
+    @Override
+    protected Account getAccount(Track track) {
+        return swapAccountService.getAccountInfo(track.getAccess(), track.getSecret(), track.getContractCode());
+    }
 
     @Override
     protected List<Position> getPositionList(Track track) {

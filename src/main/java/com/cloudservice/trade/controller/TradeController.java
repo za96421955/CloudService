@@ -60,24 +60,30 @@ public class TradeController extends BaseController {
     @PostMapping("/order/{symbol}")
     @Description("委托交易")
     public Track order(String access, String secret, @PathVariable String symbol
-            , String hedgeType, String strategyType, BigDecimal incomePricePlan
-            , Long profitTrackIntervalTime, Integer timeout) {
+            , String hedgeType, String strategyType, Integer riskType
+            , BigDecimal incomePricePlan, Long profitTrackIntervalTime, Integer timeout) {
         Track track = PlatContext.getTrack(access, SymbolEnum.get(symbol), hedgeType);
         if (track == null) {
             track = new Track(access, secret);
         }
         track.setSymbol(SymbolEnum.get(symbol));
         track.setHedgeType(hedgeType);
-        track.setHedgeConfig(PlatContext.getHedgeStrategyList(StrategyTypeEnum.get(strategyType)).get(0));
-        if (incomePricePlan != null) {
-            track.getHedgeConfig().setIncomePricePlan(incomePricePlan);
+        track.setStrategyType(StrategyTypeEnum.get(strategyType));
+        track.setRiskType(riskType);
+
+        // TODO 修改配置属性
+        if (track.getHedgeConfig() != null) {
+            if (incomePricePlan != null) {
+                track.getHedgeConfig().setIncomePricePlan(incomePricePlan);
+            }
+            if (profitTrackIntervalTime != null) {
+                track.getHedgeConfig().setProfitTrackIntervalTime(profitTrackIntervalTime);
+            }
+            if (timeout != null) {
+                track.getHedgeConfig().setTimeout(timeout);
+            }
         }
-        if (profitTrackIntervalTime != null) {
-            track.getHedgeConfig().setProfitTrackIntervalTime(profitTrackIntervalTime);
-        }
-        if (timeout != null) {
-            track.getHedgeConfig().setTimeout(timeout);
-        }
+
         // 记录上下文
         PlatContext.setTrack(track);
         return PlatContext.getTrack(track.getAccess(), track.getSymbol(), track.getHedgeType());

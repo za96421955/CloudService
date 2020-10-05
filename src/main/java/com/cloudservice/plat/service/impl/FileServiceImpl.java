@@ -90,28 +90,29 @@ public class FileServiceImpl extends BaseService implements FileService {
         if (hedgeConfig == null) {
             return;
         }
-        // 读取文件
-        List<HedgeConfig> cfgList = this.readHedgeConfigList();
-        // 删除文件
-        File file = new File(PATH_HEDGE_CONFIG);
-        if (file.exists()) {
-            file.delete();
-        }
-        // 重新全部写入
-        boolean isWrite = false;
-        for (HedgeConfig writeCfg : cfgList) {
-            if (writeCfg == null) {
-                continue;
-            }
-            if (writeCfg.equals(hedgeConfig)) {
-                writeCfg = hedgeConfig;
-                isWrite = true;
-            }
-            FileUtil.append(writeCfg.toJson().toString() + "\n", PATH_HEDGE_CONFIG, CHARSET);
-        }
-        if (!isWrite) {
-            FileUtil.append(hedgeConfig.toJson().toString() + "\n", PATH_HEDGE_CONFIG, CHARSET);
-        }
+        FileUtil.append(hedgeConfig.toJson().toString() + "\n", PATH_HEDGE_CONFIG, CHARSET);
+//        // 读取文件
+//        List<HedgeConfig> cfgList = this.readHedgeConfigList();
+//        // 删除文件
+//        File file = new File(PATH_HEDGE_CONFIG);
+//        if (file.exists()) {
+//            file.delete();
+//        }
+//        // 重新全部写入
+//        boolean isWrite = false;
+//        for (HedgeConfig writeCfg : cfgList) {
+//            if (writeCfg == null) {
+//                continue;
+//            }
+//            if (writeCfg.equals(hedgeConfig)) {
+//                writeCfg = hedgeConfig;
+//                isWrite = true;
+//            }
+//            FileUtil.append(writeCfg.toJson().toString() + "\n", PATH_HEDGE_CONFIG, CHARSET);
+//        }
+//        if (!isWrite) {
+//            FileUtil.append(hedgeConfig.toJson().toString() + "\n", PATH_HEDGE_CONFIG, CHARSET);
+//        }
     }
 
     @Override
@@ -132,6 +133,8 @@ public class FileServiceImpl extends BaseService implements FileService {
             return cfgList;
         } catch (Exception e) {
             logger.error("[{}] path={}, 文件读取异常, {}", LOG_MARK, PATH_HEDGE_CONFIG, e.getMessage(), e);
+            // 删除文件
+            file.delete();
         }
         return Collections.emptyList();
     }

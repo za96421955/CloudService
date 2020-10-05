@@ -28,7 +28,7 @@ import java.util.TreeMap;
 @Setter
 public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     private static final long serialVersionUID = -4336975265204074693L;
-    private static final BigDecimal USD_CNY_RATE = new BigDecimal("7");
+    public static final BigDecimal USD_CNY_RATE = new BigDecimal("6.9");
 
     private static final int INDEX_RADICAL = 4;
     private static final int INDEX_NORMAL = 5;
@@ -95,7 +95,8 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         if (hedgeConfig == null) {
             return false;
         }
-        return this.leverRate.equals(hedgeConfig.getLeverRate())
+        return this.strategyType.equals(hedgeConfig.getStrategyType())
+                && this.leverRate.equals(hedgeConfig.getLeverRate())
                 && this.basisVolume == hedgeConfig.getBasisVolume()
                 && this.getChaseMultipleMap().get(1).equals(hedgeConfig.getChaseMultipleMap().get(1))
                 && this.getChaseMultipleMap().get(2).equals(hedgeConfig.getChaseMultipleMap().get(2))
@@ -309,7 +310,7 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     }
 
     /**
-     * @description 指定资产, 获取合适的配置集合
+     * @description 指定资产, 获取配置集合
      * <p>
      *     0, 激进配置
      *     1，常规配置
@@ -334,7 +335,6 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
             if (cfg == null) {
                 continue;
             }
-            cfg.calculateChaseInfo();
             // 1, price >= steadyPlusPrice, add 3
             if (price.compareTo(cfg.getSteadyPlusPrice()) >= 0) {
                 cfgMap.get(TYPE_STEADY_PLUS).add(cfg);
@@ -370,7 +370,7 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
     }
 
     /**
-     * @description 指定资产, 获取合适的配置
+     * @description 指定资产, 获取合适的配置集合
      * <p>
      *     0, 激进配置
      *     1，常规配置
@@ -394,6 +394,26 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         fitCfgMap.put(TYPE_STEADY, HedgeConfig.getFitConfig(fitCfgListMap.get(TYPE_STEADY)));
         fitCfgMap.put(TYPE_STEADY_PLUS, HedgeConfig.getFitConfig(fitCfgListMap.get(TYPE_STEADY_PLUS)));
         return fitCfgMap;
+    }
+
+    /**
+     * @description 指定资产, 获取合适的配置
+     * <p>
+     *     0, 激进配置
+     *     1，常规配置
+     *     2，稳健配置
+     * </p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 16:51
+     */
+    public static HedgeConfig getFitConfigByPrice(
+            BigDecimal price, List<HedgeConfig> cfgList, int type) {
+        return HedgeConfig.getFitConfigMapByPrice(price, cfgList).get(type);
     }
 
 }

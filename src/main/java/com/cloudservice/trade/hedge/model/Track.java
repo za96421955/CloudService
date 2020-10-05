@@ -31,8 +31,13 @@ public class Track implements Serializable, Jsonable<Track> {
     private SymbolEnum symbol;
     /** 对冲合约类型 */
     private String hedgeType;
+    /** 策略类型 */
+    private StrategyTypeEnum strategyType;
+    /** 风险类型 */
+    private Integer riskType;
     /** 停止交易 */
     private boolean stopTrade = false;
+
     /** 策略配置 */
     private HedgeConfig hedgeConfig;
 
@@ -89,6 +94,8 @@ public class Track implements Serializable, Jsonable<Track> {
                 "access='" + access + '\'' +
                 ", symbol=" + symbol +
                 ", hedgeType=" + hedgeType +
+                ", strategyType=" + strategyType +
+                ", riskType=" + riskType +
                 ", stopTrade=" + stopTrade +
                 ", hedgeConfig=" + hedgeConfig +
                 '}';

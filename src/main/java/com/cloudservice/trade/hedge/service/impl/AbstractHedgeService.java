@@ -3,12 +3,16 @@ package com.cloudservice.trade.hedge.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.cloudservice.base.BaseService;
 import com.cloudservice.base.Result;
+import com.cloudservice.plat.context.PlatContext;
+import com.cloudservice.plat.enums.StrategyTypeEnum;
+import com.cloudservice.trade.hedge.model.HedgeConfig;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.hedge.service.HedgeService;
 import com.cloudservice.trade.huobi.enums.ContractDirectionEnum;
 import com.cloudservice.trade.huobi.enums.ContractLeverRateEnum;
 import com.cloudservice.trade.huobi.enums.ContractTypeEnum;
 import com.cloudservice.trade.huobi.enums.SymbolEnum;
+import com.cloudservice.trade.huobi.model.contract.Account;
 import com.cloudservice.trade.huobi.model.contract.Order;
 import com.cloudservice.trade.huobi.model.contract.Position;
 import com.cloudservice.trade.huobi.model.spot.Kline;
@@ -16,7 +20,6 @@ import com.cloudservice.trade.huobi.service.spot.SpotMarketService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.List;
 
 /**
@@ -31,6 +34,32 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
 
     @Autowired
     protected SpotMarketService spotMarketService;
+
+    @Override
+    public void setStrategy(Track track) {
+        List<HedgeConfig> cfgList = PlatContext.getHedgeStrategyList(track.getStrategyType());
+
+        // 固定策略
+        if (cfgList.size() == 1) {
+            HedgeConfig fixedCfg = cfgList.get(0);
+            if (track.getHedgeConfig() == null || !track.getHedgeConfig().getStrategyType().equals(fixedCfg.getStrategyType())) {
+                track.setHedgeConfig(fixedCfg);
+            }
+            return;
+        }
+
+        // 复利策略
+        // 获取账户、K线信息
+        Account account = this.getAccount(track);
+        Kline kline = this.getKlineCurr(track.getSymbol(), ContractTypeEnum.THIS_WEEK);
+        if (account == null || kline == null) {
+            track.setHedgeConfig(PlatContext.getHedgeStrategyList(StrategyTypeEnum.FIXED_BASIS).get(0));
+            return;
+        }
+        // TODO 计算参考价格CNY
+        BigDecimal price = account.getMarginBalance().multiply(kline.getClose()).multiply(HedgeConfig.USD_CNY_RATE);
+        track.setHedgeConfig(HedgeConfig.getFitConfigByPrice(price, cfgList, track.getRiskType()));
+    }
 
     /**
      * @description 获取允许交易倍率
@@ -379,6 +408,20 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         }
         return Result.buildSuccess();
     }
+
+    /**
+     * @description 获取账户信息
+     * <p>〈功能详细描述〉</p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 21:40
+     * @param   track
+     */
+    protected abstract Account getAccount(Track track);
 
     /**
      * @description 获取持仓信息

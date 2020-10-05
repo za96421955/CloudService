@@ -16,6 +16,20 @@ public interface HedgeService {
     String LOG_MARK = "对冲服务";
 
     /**
+     * @description 设置对冲策略
+     * <p>〈功能详细描述〉</p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/5 21:23
+     * @param   track
+     */
+    void setStrategy(Track track);
+
+    /**
      * @description 持仓检查
      * <p>〈功能详细描述〉</p>
      *

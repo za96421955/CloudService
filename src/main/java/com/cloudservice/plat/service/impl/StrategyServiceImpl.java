@@ -42,7 +42,7 @@ public class StrategyServiceImpl extends BaseService implements StrategyService 
         // 记录上下文
         PlatContext.setHedgeStrategy(hedgeConfig);
         // 持久化
-        fileService.writeHedgeConfig(hedgeConfig);
+//        fileService.writeHedgeConfig(hedgeConfig);
     }
 
     @Override

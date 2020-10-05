@@ -3,6 +3,7 @@ package com.cloudservice.plat.thread;
 import com.cloudservice.base.BaseService;
 import com.cloudservice.base.Result;
 import com.cloudservice.plat.context.PlatContext;
+import com.cloudservice.trade.hedge.model.HedgeConfig;
 import com.cloudservice.trade.hedge.model.Track;
 import com.cloudservice.trade.hedge.service.HedgeService;
 import com.cloudservice.trade.hedge.service.HedgeServiceFactory;
@@ -12,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +29,7 @@ import java.util.Map;
  */
 @Component
 public class HedgeTrackScheduler extends BaseService {
-    private Map<String, Thread> threadPool = new HashMap<>();
+    private static Map<String, Thread> threadPool = new HashMap<>();
 
     @Autowired
     private HedgeServiceFactory hedgeServiceFactory;
@@ -46,15 +48,17 @@ public class HedgeTrackScheduler extends BaseService {
             // 生成工作线程
             threadPool.put(track.getAccess(), new Thread(() -> {
                 try {
-                    // 获取对冲服务
+                    // 1, 获取对冲服务
                     HedgeService service = hedgeServiceFactory.getHedgeService(track.getHedgeType());
-                    // 1, 持仓检查
+                    // 2, 设置对冲策略
+                    service.setStrategy(track);
+                    // 3, 持仓检查
                     Result result = service.positionCheck(track);
                     if (result.success()) {
                         Object[] positions = result.getData();
                         Position buy = (Position) positions[0];
                         Position sell = (Position) positions[1];
-                        // 2, 双向平仓检查
+                        // 4, 双向平仓检查
                         service.closeCheck(track, buy, sell);
                     } else {
                         logger.info("[对冲追踪] track={}, result={}, 持仓检查未通过, 无持仓信息", track, result);

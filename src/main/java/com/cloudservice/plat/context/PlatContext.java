@@ -61,7 +61,6 @@ public final class PlatContext {
         if (hedgeConfig == null) {
             return;
         }
-        hedgeConfig.calculateChaseInfo();
         getHedgeStrategyList(hedgeConfig.getStrategyType()).add(hedgeConfig);
     }
 

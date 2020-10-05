@@ -37,10 +37,21 @@ public class HedgeStrategyFixed4IncomeChase implements StrategyAPI<HedgeConfig> 
         cfg.setProfitMultiple(BigDecimal.valueOf(2));
         cfg.setProfitTrackIntervalTime(1000);
         cfg.setTimeout(30);
+        cfg.calculateChaseInfo();
 
         List<HedgeConfig> cfgList = new ArrayList<>();
         cfgList.add(cfg);
         return cfgList;
+    }
+
+    @Override
+    public BigDecimal getMinAssets() {
+        return null;
+    }
+
+    @Override
+    public BigDecimal getMaxAssets() {
+        return null;
     }
 
 }
