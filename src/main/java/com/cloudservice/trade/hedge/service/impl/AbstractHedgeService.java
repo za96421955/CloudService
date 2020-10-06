@@ -231,12 +231,8 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         }
         // 判断是否可以平仓
         if (!this.isClose(track, position, incomeMultiple, BigDecimal.ZERO)) {
-            // 记录触发价
-            this.recordOrRemoveTriggerPrice(track, position, incomeMultiple, true);
             return Result.buildFail("not allowed close");
         }
-        // 移除触发价
-        this.recordOrRemoveTriggerPrice(track, position, incomeMultiple, false);
 
         // 平仓下单
         Result result = this.closeOrder(track, position, lossVolume);
@@ -296,8 +292,12 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         BigDecimal incomePrice = this.getIncomePrice(position, kline.getClose());
         // 若未达到计划收益, 则不平仓
         if (incomePrice.compareTo(track.getHedgeConfig().getIncomePricePlan().multiply(incomeMultiple)) < 0) {
+            // 记录触发价
+            this.recordOrRemoveTriggerPrice(track, position, incomeMultiple, true);
             return false;
         }
+        // 移除触发价
+        this.recordOrRemoveTriggerPrice(track, position, incomeMultiple, false);
         logger.info("[{}] direction={}, price={}, curr={}, income={}, 达到计划收益条件, 平仓准备"
                 , LOG_MARK, position.getDirection(), position.getCostHold(), kline.getClose(), incomePrice);
 
