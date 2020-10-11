@@ -10,10 +10,11 @@ package com.cloudservice.plat.enums;
  */
 public enum StrategyTypeEnum {
     /** 固定策略 */
-    FIXED_BASIS("fixedBasis", "基础固定策略")
-    , FIXED_2_INCOME_CHASE("fixed2IncomeChase", "2次收益追逐固定策略")
-    , FIXED_3_INCOME_CHASE("fixed3IncomeChase", "3次收益追逐固定策略")
-    , FIXED_4_INCOME_CHASE("fixed4IncomeChase", "4次收益追逐固定策略")
+    FIXED_VOLUME_1("fixedVolume1", "1张固定策略")
+    , FIXED_VOLUME_2("fixedVolume2", "2张固定策略")
+    , FIXED_VOLUME_3("fixedVolume3", "3张固定策略")
+    , FIXED_VOLUME_4("fixedVolume4", "4张固定策略")
+    , FIXED_VOLUME_5("fixedVolume5", "5张固定策略")
 
     /** 复利策略 */
     , COMPOUND_LOW("compoundLow", "低资产复利策略")
