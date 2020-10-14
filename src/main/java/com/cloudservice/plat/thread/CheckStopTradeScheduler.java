@@ -37,7 +37,7 @@ public class CheckStopTradeScheduler extends BaseService {
          */
         boolean isStopTrade = isStopTrade();
         for (Track track : PlatContext.getTrackList()) {
-            if (track == null) {
+            if (track == null || track.getDiyConfig().getStopTrade() != null) {
                 continue;
             }
             track.setStopTrade(isStopTrade);

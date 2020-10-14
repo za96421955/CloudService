@@ -103,6 +103,13 @@ public final class PlatContext {
         }
         return cfgList;
     }
+    public static HedgeConfig getHedgeStrategy(StrategyTypeEnum strategyType) {
+        List<HedgeConfig> cfgList = getHedgeStrategyList(strategyType);
+        if (CollectionUtils.isEmpty(cfgList)) {
+            return null;
+        }
+        return cfgList.get(0);
+    }
     public synchronized static void setHedgeStrategy(HedgeConfig hedgeConfig) {
         if (hedgeConfig == null) {
             return;

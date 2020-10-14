@@ -3,6 +3,7 @@ package com.cloudservice.trade.analyse.service.trade;
 import com.cloudservice.base.Result;
 import com.cloudservice.trade.analyse.model.trade.Analyse;
 import com.cloudservice.trade.huobi.enums.ContractLeverRateEnum;
+import com.cloudservice.trade.huobi.enums.ContractTypeEnum;
 import com.cloudservice.trade.huobi.enums.SymbolEnum;
 import com.cloudservice.trade.huobi.model.contract.Position;
 import com.cloudservice.trade.huobi.model.spot.Kline;
@@ -51,8 +52,8 @@ public interface OrderService {
      * @date 2020/9/10 20:33
      * @param access, secret, symbol, leverRate, analyse, volume
      */
-    Result limitOpen(String access, String secret, SymbolEnum symbol, ContractLeverRateEnum leverRate
-            , Analyse analyse, int volume);
+    Result limitOpen(String access, String secret, SymbolEnum symbol, ContractTypeEnum contractType
+            , ContractLeverRateEnum leverRate, Analyse analyse, int volume);
 
      /**
       * @description 对手价开仓
@@ -61,8 +62,8 @@ public interface OrderService {
       * @author 陈晨
       * @date 2020/9/14 17:31
       **/
-    Result opponentOpen(String access, String secret, SymbolEnum symbol, ContractLeverRateEnum leverRate
-            , Analyse analyse, int volume);
+    Result opponentOpen(String access, String secret, SymbolEnum symbol, ContractTypeEnum contractType
+            , ContractLeverRateEnum leverRate, Analyse analyse, int volume);
 
     /**
      * @description 对手价平仓

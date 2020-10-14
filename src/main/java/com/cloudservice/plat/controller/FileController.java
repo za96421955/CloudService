@@ -2,13 +2,7 @@ package com.cloudservice.plat.controller;
 
 import com.cloudservice.base.BaseController;
 import com.cloudservice.base.Result;
-import com.cloudservice.plat.context.PlatContext;
-import com.cloudservice.plat.enums.StrategyTypeEnum;
 import com.cloudservice.plat.service.FileService;
-import com.cloudservice.trade.hedge.model.HedgeConfig;
-import com.cloudservice.trade.hedge.model.Track;
-import com.cloudservice.trade.hedge.service.HedgeServiceFactory;
-import com.cloudservice.trade.huobi.enums.SymbolEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,12 +29,12 @@ public class FileController extends BaseController {
     @Description("记录追踪信息")
     public Result writeTrack() {
         try {
-            Track track = new Track();
-            track.setAccess("access");
-            track.setSymbol(SymbolEnum.ETH);
-            track.setHedgeType(HedgeServiceFactory.CONTRACT);
-            track.setHedgeConfig(PlatContext.getHedgeStrategyList(StrategyTypeEnum.FIXED_BASIS).get(0));
-            fileService.writeTrack(track);
+//            Track track = new Track();
+//            track.setAccess("access");
+//            track.setSymbol(SymbolEnum.ETH);
+//            track.setHedgeType(HedgeServiceFactory.CONTRACT);
+//            track.setHedgeConfig(PlatContext.getHedgeStrategyList(StrategyTypeEnum.FIXED_BASIS).get(0));
+//            fileService.writeTrack(track);
             return Result.buildSuccess();
         } catch (Exception e) {
             logger.error("[文件] 记录追踪信息异常, {}", e.getMessage(), e);
@@ -63,8 +57,8 @@ public class FileController extends BaseController {
     @Description("记录配置信息")
     public Result writeHedgeConfig() {
         try {
-            HedgeConfig hedgeConfig = PlatContext.getHedgeStrategyList(StrategyTypeEnum.FIXED_BASIS).get(0);
-            fileService.writeHedgeConfig(hedgeConfig);
+//            HedgeConfig hedgeConfig = PlatContext.getHedgeStrategyList(StrategyTypeEnum.FIXED_BASIS).get(0);
+//            fileService.writeHedgeConfig(hedgeConfig);
             return Result.buildSuccess();
         } catch (Exception e) {
             logger.error("[文件] 记录配置信息异常, {}", e.getMessage(), e);

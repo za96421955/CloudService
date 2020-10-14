@@ -65,7 +65,8 @@ public class PriceTrackScheduler extends BaseService {
      * @date    2020/10/5 23:25
      */
     private void triggerTrack() {
-        Kline kline = contractMarketService.getKlineCurr(SymbolContractEnum.get(SymbolEnum.ETH, ContractTypeEnum.THIS_WEEK));
+        // 当季
+        Kline kline = contractMarketService.getKlineCurr(SymbolContractEnum.get(SymbolEnum.ETH, ContractTypeEnum.QUARTER));
         if (kline == null) {
             return;
         }
@@ -74,7 +75,23 @@ public class PriceTrackScheduler extends BaseService {
             return;
         }
         for (Track track : triggerSet) {
-            if (track == null) {
+            if (track == null || !ContractTypeEnum.QUARTER.equals(track.getContractType())) {
+                continue;
+            }
+            hedgeTrackScheduler.runTrack(track);
+        }
+
+        // 当周
+        kline = contractMarketService.getKlineCurr(SymbolContractEnum.get(SymbolEnum.ETH, ContractTypeEnum.THIS_WEEK));
+        if (kline == null) {
+            return;
+        }
+        triggerSet = PlatContext.getTriggerTrack(kline.getClose());
+        if (CollectionUtils.isEmpty(triggerSet)) {
+            return;
+        }
+        for (Track track : triggerSet) {
+            if (track == null || !ContractTypeEnum.THIS_WEEK.equals(track.getContractType())) {
                 continue;
             }
             hedgeTrackScheduler.runTrack(track);

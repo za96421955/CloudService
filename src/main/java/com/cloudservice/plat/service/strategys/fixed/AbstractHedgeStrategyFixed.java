@@ -55,13 +55,13 @@ public abstract class AbstractHedgeStrategyFixed implements StrategyAPI<HedgeCon
         HedgeConfig cfg = new HedgeConfig(this.getStrategyType());
         cfg.setLeverRate(ContractLeverRateEnum.LEVER_75);
         cfg.setBasisVolume(this.getBasisVolume());
-        cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(2));
-        cfg.getChaseMultipleMap().put(2, BigDecimal.valueOf(2));
-        cfg.getChaseMultipleMap().put(3, BigDecimal.valueOf(2));
-        cfg.getChaseMultipleMap().put(4, BigDecimal.valueOf(2));
-        cfg.getChaseMultipleMap().put(5, BigDecimal.valueOf(3));
-        cfg.getChaseMultipleMap().put(6, BigDecimal.valueOf(3));
-        cfg.getChaseMultipleMap().put(7, BigDecimal.valueOf(3));
+        cfg.getChaseMultipleMap().put(1, this.getChaseMultiple_1());
+        cfg.getChaseMultipleMap().put(2, this.getChaseMultiple_2());
+        cfg.getChaseMultipleMap().put(3, this.getChaseMultiple_3());
+        cfg.getChaseMultipleMap().put(4, this.getChaseMultiple_4());
+        cfg.getChaseMultipleMap().put(5, this.getChaseMultiple_5());
+        cfg.getChaseMultipleMap().put(6, this.getChaseMultiple_6());
+        cfg.getChaseMultipleMap().put(7, this.getChaseMultiple_7());
         cfg.setIncomePricePlan(new BigDecimal("0.6"));
         cfg.setProfitMultiple(BigDecimal.valueOf(2));
         cfg.setProfitTrackIntervalTime(1000);
@@ -82,6 +82,20 @@ public abstract class AbstractHedgeStrategyFixed implements StrategyAPI<HedgeCon
     public BigDecimal getMaxAssets() {
         return null;
     }
+
+    protected abstract BigDecimal getChaseMultiple_1();
+
+    protected abstract BigDecimal getChaseMultiple_2();
+
+    protected abstract BigDecimal getChaseMultiple_3();
+
+    protected abstract BigDecimal getChaseMultiple_4();
+
+    protected abstract BigDecimal getChaseMultiple_5();
+
+    protected abstract BigDecimal getChaseMultiple_6();
+
+    protected abstract BigDecimal getChaseMultiple_7();
 
 }
 

@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @date 2020/9/29
  */
-@Service
+//@Service
 public class HedgeStrategyCompoundLarge extends AbstractHedgeStrategyCompound {
 
     @Override

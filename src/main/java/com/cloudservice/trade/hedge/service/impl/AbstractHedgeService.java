@@ -41,19 +41,16 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
 
         // 固定策略
         if (cfgList.size() == 1) {
-            HedgeConfig fixedCfg = cfgList.get(0);
-            if (track.getHedgeConfig() == null || !track.getHedgeConfig().getStrategyType().equals(fixedCfg.getStrategyType())) {
-                track.setHedgeConfig(fixedCfg);
-            }
+            track.setHedgeConfig(cfgList.get(0));
             return;
         }
 
         // 复利策略
         // 获取账户、K线信息
         Account account = this.getAccount(track);
-        Kline kline = this.getKlineCurr(track.getSymbol(), ContractTypeEnum.THIS_WEEK);
+        Kline kline = this.getKlineCurr(track.getSymbol(), track.getContractType());
         if (account == null || kline == null) {
-            track.setHedgeConfig(PlatContext.getHedgeStrategyList(StrategyTypeEnum.FIXED_BASIS).get(0));
+            track.setHedgeConfig(PlatContext.getHedgeStrategy(StrategyTypeEnum.FIXED_VOLUME_2));
             return;
         }
         // TODO 计算参考价格CNY
@@ -243,7 +240,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         result = this.cancel(track);
         logger.info("[{}] track={}, position={}, result={}, 平仓下单失败, 则全部撤单, 重新下单"
                 , LOG_MARK, track, position, result);
-        return this.closeOrder(track, position, lossVolume);
+        return this.profitClose(track, position, incomeMultiple, lossVolume);
     }
 
     /**
@@ -284,7 +281,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      **/
     private boolean isClose(Track track, Position position, BigDecimal incomeMultiple, BigDecimal lastIncomePrice) {
         // 获取现价信息
-        Kline kline = this.getKlineCurr(track.getSymbol(), ContractTypeEnum.THIS_WEEK);
+        Kline kline = this.getKlineCurr(track.getSymbol(), track.getContractType());
         if (kline == null) {
             return false;
         }

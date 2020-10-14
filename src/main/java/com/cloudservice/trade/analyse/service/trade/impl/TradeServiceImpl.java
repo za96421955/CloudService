@@ -59,7 +59,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
             return Result.buildFail("当前下单未全部成交, 不可以开仓", order);
         }
         // 3, 撤销所有计划委托
-        contractTradeService.triggerCancelAll(track.getAccess(), track.getSecret(), track.getSymbol(), ContractTypeEnum.THIS_WEEK);
+        contractTradeService.triggerCancelAll(track.getAccess(), track.getSecret(), track.getSymbol(), track.getContractType());
         track.clearOpen();
         return Result.buildSuccess();
     }
@@ -121,8 +121,8 @@ public class TradeServiceImpl extends BaseService implements TradeService {
         logger.info("[{}] track{}, volume={}, orderVolume={}, 计算可用张数, 下单张数", LOG_MARK, track, volume, orderVolume);
 
         // 下单
-        Result result = orderService.limitOpen(track.getAccess(), track.getSecret(), track.getSymbol(), track.getHedgeConfig().getLeverRate()
-                , analyse, orderVolume);
+        Result result = orderService.limitOpen(track.getAccess(), track.getSecret(), track.getSymbol(), track.getContractType()
+                , track.getHedgeConfig().getLeverRate(), analyse, orderVolume);
         if (result != null && result.success()) {
             String orderId = JSONObject.parseObject(result.getData().toString()).getLong("order_id") + "";
             track.setLastAnalyse(analyse);
@@ -256,7 +256,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
         }
         // 计划委托, 止盈
         if (!isProfit) {
-            Result result = contractTradeService.triggerOrder(track.getAccess(), track.getSecret(), track.getSymbol(), ContractTypeEnum.THIS_WEEK
+            Result result = contractTradeService.triggerOrder(track.getAccess(), track.getSecret(), track.getSymbol(), track.getContractType()
                     , triggerType, track.getLastAnalyse().getTriggerProfit(), track.getLastAnalyse().getProfit(), ContractOrderPriceTypeEnum.LIMIT
                     , position.getVolume().intValue(), direction.getNegate(), ContractOffsetEnum.CLOSE
                     , ContractLeverRateEnum.get(position.getLeverRate() + ""));
@@ -264,7 +264,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
         }
         // 计划委托, 止损
         if (!isLoss) {
-            Result result = contractTradeService.triggerOrder(track.getAccess(), track.getSecret(), track.getSymbol(), ContractTypeEnum.THIS_WEEK
+            Result result = contractTradeService.triggerOrder(track.getAccess(), track.getSecret(), track.getSymbol(), track.getContractType()
                     , triggerType.getNegate(), track.getLastAnalyse().getTriggerLoss(), track.getLastAnalyse().getLoss(), ContractOrderPriceTypeEnum.LIMIT
                     , position.getVolume().intValue(), direction.getNegate(), ContractOffsetEnum.CLOSE
                     , ContractLeverRateEnum.get(position.getLeverRate() + ""));

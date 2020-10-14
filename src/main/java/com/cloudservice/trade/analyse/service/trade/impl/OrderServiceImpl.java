@@ -84,24 +84,24 @@ public class OrderServiceImpl extends BaseService implements OrderService {
     }
 
     @Override
-    public Result limitOpen(String access, String secret, SymbolEnum symbol, ContractLeverRateEnum leverRate
-            , Analyse analyse, int volume) {
+    public Result limitOpen(String access, String secret, SymbolEnum symbol, ContractTypeEnum contractType
+            , ContractLeverRateEnum leverRate, Analyse analyse, int volume) {
         // 限价委托下单
-        Result result = contractTradeService.order(access, secret, symbol, ContractTypeEnum.THIS_WEEK, analyse.getPrice(), volume
+        Result result = contractTradeService.order(access, secret, symbol, contractType, analyse.getPrice(), volume
                 , analyse.getDirection(), ContractOffsetEnum.OPEN, leverRate, ContractOrderPriceTypeEnum.LIMIT);
-        logger.info("[{}] access={}， symbol={}, leverRate={}, analyse={}, volume={}, result={}, 限价委托下单"
-                , LOG_MARK, access, symbol, leverRate, analyse, volume, result);
+        logger.info("[{}] access={}， symbol={}, contractType={}, leverRate={}, analyse={}, volume={}, result={}, 限价委托下单"
+                , LOG_MARK, access, symbol, contractType, leverRate, analyse, volume, result);
         return result;
     }
 
     @Override
-    public Result opponentOpen(String access, String secret, SymbolEnum symbol, ContractLeverRateEnum leverRate
-            , Analyse analyse, int volume) {
+    public Result opponentOpen(String access, String secret, SymbolEnum symbol, ContractTypeEnum contractType
+            , ContractLeverRateEnum leverRate, Analyse analyse, int volume) {
         // 限价委托下单
-        Result result = contractTradeService.order(access, secret, symbol, ContractTypeEnum.THIS_WEEK, null, volume
+        Result result = contractTradeService.order(access, secret, symbol, contractType, null, volume
                 , analyse.getDirection(), ContractOffsetEnum.OPEN, leverRate, ContractOrderPriceTypeEnum.OPPONENT);
-        logger.info("[{}] access={}， symbol={}, leverRate={}, analyse={}, volume={}, result={}, 对手价委托下单"
-                , LOG_MARK, access, symbol, leverRate, analyse, volume, result);
+        logger.info("[{}] access={}， symbol={}, contractType={}, leverRate={}, analyse={}, volume={}, result={}, 对手价委托下单"
+                , LOG_MARK, access, symbol, contractType, leverRate, analyse, volume, result);
         // 记录下单信息
         if (result != null && result.success()) {
             String orderId = JSONObject.parseObject(result.getData().toString()).getLong("order_id") + "";

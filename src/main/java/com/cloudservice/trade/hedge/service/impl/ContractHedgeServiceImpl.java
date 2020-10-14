@@ -54,14 +54,14 @@ public class ContractHedgeServiceImpl extends AbstractHedgeService {
 
     @Override
     protected Result open(Track track, ContractDirectionEnum direction, long volume) {
-        return contractTradeService.order(track.getAccess(), track.getSecret(), track.getSymbol(), ContractTypeEnum.THIS_WEEK
+        return contractTradeService.order(track.getAccess(), track.getSecret(), track.getSymbol(), track.getContractType()
                 , null, volume, direction, ContractOffsetEnum.OPEN
                 , track.getHedgeConfig().getLeverRate(), ContractOrderPriceTypeEnum.OPTIMAL_5);
     }
 
     @Override
     protected Result close(Track track, Position position) {
-        return contractTradeService.order(track.getAccess(), track.getSecret(), track.getSymbol(), ContractTypeEnum.THIS_WEEK
+        return contractTradeService.order(track.getAccess(), track.getSecret(), track.getSymbol(), track.getContractType()
                 , null, position.getVolume().longValue()
                 , ContractDirectionEnum.get(position.getDirection()).getNegate(), ContractOffsetEnum.CLOSE
                 , track.getHedgeConfig().getLeverRate(), ContractOrderPriceTypeEnum.OPTIMAL_5);
