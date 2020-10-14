@@ -64,7 +64,7 @@ public class Track implements Serializable, Jsonable<Track> {
     }
 
     public void setHedgeConfig(HedgeConfig hedgeConfig) {
-        this.hedgeConfig = hedgeConfig;
+        this.hedgeConfig = hedgeConfig.clone();
         this.setDiy();
     }
 
@@ -134,7 +134,6 @@ public class Track implements Serializable, Jsonable<Track> {
                 ", strategyType=" + strategyType +
                 ", stopTrade=" + stopTrade +
                 ", hedgeConfig=" + hedgeConfig +
-                ", diyConfig=" + diyConfig +
                 '}';
     }
 

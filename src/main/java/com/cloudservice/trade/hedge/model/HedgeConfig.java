@@ -121,6 +121,21 @@ public class HedgeConfig implements Serializable, Jsonable<HedgeConfig> {
         return JSONObject.parseObject(json, this.getClass());
     }
 
+    /**
+     * @description 克隆
+     * <p>〈功能详细描述〉</p>
+     *
+     * <pre>
+     * 〈举例说明〉
+     * </pre>
+     *
+     * @auther  陈晨(96421)
+     * @date    2020/10/14 23:04
+     */
+    public HedgeConfig clone() {
+        return this.fromJson(this.toJson().toString());
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

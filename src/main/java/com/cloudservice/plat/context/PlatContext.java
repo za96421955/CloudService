@@ -60,13 +60,8 @@ public final class PlatContext {
                 triggerSet.add(ge.getKey());
             }
         }
-        if (triggerSet.size() > 0) {
-            logger.info("[现价追踪] LE={}, GE={}, trigger={}, 获取被触发追踪"
-                    , lePriceTrack.values(), gePriceTrack.values(), triggerSet);
-        } else {
-            logger.debug("[现价追踪] LE={}, GE={}, trigger={}, 获取被触发追踪"
-                    , lePriceTrack.values(), gePriceTrack.values(), triggerSet);
-        }
+        logger.debug("[现价追踪] LE={}, GE={}, trigger={}, 获取被触发追踪"
+                , lePriceTrack.values(), gePriceTrack.values(), triggerSet);
         return triggerSet;
     }
 
