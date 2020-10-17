@@ -352,17 +352,15 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         }
 
         // 3, 同向开仓（basis张）
-        result = this.open(track, ContractDirectionEnum.get(position.getDirection()), track.getHedgeConfig().getBasisVolume());
-        logger.info("[{}] track={}, direction={}, result={}, 同向开仓（{}}张）"
-                , LOG_MARK, track, position.getDirection(), result, track.getHedgeConfig().getBasisVolume());
-        if (!result.success()) {
-            return result;
-        }
-        // 订单完成检查
-        if (!this.orderCompleteCheck(track, result, 0)) {
-            logger.info("[{}] track={}, direction={}, 同向开仓检查, 超时", LOG_MARK, track, position.getDirection());
-            return Result.buildFail("同向开仓检查, 超时");
-        }
+        do {
+            result = this.open(track, ContractDirectionEnum.get(position.getDirection()), track.getHedgeConfig().getBasisVolume());
+            logger.info("[{}] track={}, direction={}, result={}, 同向开仓（{}}张）"
+                    , LOG_MARK, track, position.getDirection(), result, track.getHedgeConfig().getBasisVolume());
+            if (!result.success()) {
+                return result;
+            }
+            // 订单完成检查
+        } while (!this.orderCompleteCheck(track, result, 0));
 
         // 4, 逆向止损加仓（lossVolume张）
         if (lossVolume > 0) {
