@@ -212,8 +212,8 @@ public class Track implements Serializable, Jsonable<Track> {
     public static void main(String[] args) {
         HedgeConfig cfg = new HedgeConfig(StrategyTypeEnum.FIXED_VOLUME_2);
         cfg.setBasisVolume(2);
-        cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(4));
-        cfg.getChaseMultipleMap().put(2, BigDecimal.valueOf(3));
+        cfg.getChaseMultipleMap().put(1, BigDecimal.valueOf(2));
+        cfg.getChaseMultipleMap().put(2, BigDecimal.valueOf(2));
         cfg.getChaseMultipleMap().put(3, BigDecimal.valueOf(2));
         cfg.getChaseMultipleMap().put(4, BigDecimal.valueOf(2));
         cfg.getChaseMultipleMap().put(5, BigDecimal.valueOf(2));
@@ -223,7 +223,7 @@ public class Track implements Serializable, Jsonable<Track> {
         cfg.setProfitMultiple(BigDecimal.valueOf(2));
         cfg.calculateChaseInfo();
 
-        long positionVolume = 36;
+        long positionVolume = 4;
         Track track = new Track();
         track.setHedgeConfig(cfg);
         System.out.println(track.getProfitMultiple(positionVolume));

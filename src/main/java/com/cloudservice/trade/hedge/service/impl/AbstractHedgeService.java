@@ -148,7 +148,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
          */
         // 1.1, 开多止盈平仓
         Result result = this.profitClose(track, buy
-                , this.calculateIncomeMultiple(track, sell)
+                , this.calculateIncomeMultiple(track, buy, sell)
                 , this.calculateCloseLossVolume(track, sell));
         logger.debug("[{}] track={}, result={}, Buy - 开多止盈平仓", LOG_MARK, track, result);
         // 1.2, 停止交易, 开空止损平仓
@@ -159,7 +159,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
 
         // 2.1, 开空止盈平仓
         result = this.profitClose(track, sell
-                , this.calculateIncomeMultiple(track, buy)
+                , this.calculateIncomeMultiple(track, sell, buy)
                 , this.calculateCloseLossVolume(track, buy));
         logger.debug("[{}] track={}, result={}, Sell - 开空止盈平仓", LOG_MARK, track, result);
         // 2.2, 停止交易, 开多止损平仓
@@ -182,11 +182,13 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      * @date 2020/9/26 15:00
      * @param track, reversePosition
      **/
-    private BigDecimal calculateIncomeMultiple(Track track, Position reversePosition) {
-        if (reversePosition == null) {
+    private BigDecimal calculateIncomeMultiple(Track track, Position positive, Position reverse) {
+        // 正向张数 > 反向张数, 则固定1倍
+        if (positive == null || reverse == null
+                || positive.getVolume().longValue() > reverse.getVolume().longValue()) {
             return BigDecimal.ONE;
         }
-        BigDecimal incomeMultiple = track.getProfitMultiple(reversePosition.getVolume().longValue());
+        BigDecimal incomeMultiple = track.getProfitMultiple(reverse.getVolume().longValue());
         if (incomeMultiple.compareTo(BigDecimal.ONE) < 0) {
             incomeMultiple = BigDecimal.ONE;
         }
@@ -236,10 +238,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         if (result.success()) {
             return result;
         }
-        // 平仓下单失败, 则全部撤单, 重新下单
-        result = this.cancel(track);
-        logger.info("[{}] track={}, position={}, result={}, 平仓下单失败, 则全部撤单, 重新下单"
-                , LOG_MARK, track, position, result);
+        // 止盈平仓失败, 重新下单
         return this.profitClose(track, position, incomeMultiple, lossVolume);
     }
 
@@ -347,15 +346,20 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         }
 
         // 2, 停止交易, 则停止追仓
-        if (this.isStopTrade(track, position)) {
+        if (this.isStopTrade(track, lossVolume)) {
             return Result.buildSuccess();
         }
 
         // 3, 同向开仓（basis张）
+        // TODO profitVolume <= basis * 2 && lossVolume > basis, 则开仓张数 = basis * 2, 否则 = basis
+        long profitOpenVolume = track.getHedgeConfig().getBasisVolume();
         do {
-            result = this.open(track, ContractDirectionEnum.get(position.getDirection()), track.getHedgeConfig().getBasisVolume());
+            if (position.getVolume().longValue() <= profitOpenVolume * 2 && lossVolume > profitOpenVolume) {
+                profitOpenVolume *= 2;
+            }
+            result = this.open(track, ContractDirectionEnum.get(position.getDirection()), profitOpenVolume);
             logger.info("[{}] track={}, direction={}, result={}, 同向开仓（{}}张）"
-                    , LOG_MARK, track, position.getDirection(), result, track.getHedgeConfig().getBasisVolume());
+                    , LOG_MARK, track, position.getDirection(), result, profitOpenVolume);
             if (!result.success()) {
                 return result;
             }
@@ -363,11 +367,16 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
         } while (!this.orderCompleteCheck(track, result, 0));
 
         // 4, 逆向止损加仓（lossVolume张）
-        if (lossVolume > 0) {
-            result = this.open(track, ContractDirectionEnum.get(position.getDirection()).getNegate(), lossVolume);
-            logger.info("[{}] track={}, direction={}, result={}, 逆向止损加仓（{}张）"
-                    , LOG_MARK, track, ContractDirectionEnum.get(position.getDirection()).getNegate()
-                    , result, lossVolume);
+        // TODO profitOpenVolume = basis, lossVolume = basis * 2, 则不追仓
+        if (!(profitOpenVolume == track.getHedgeConfig().getBasisVolume()
+                && lossVolume == track.getHedgeConfig().getBasisVolume() * 2)) {
+            do {
+                result = this.open(track, ContractDirectionEnum.get(position.getDirection()).getNegate(), lossVolume);
+                logger.info("[{}] track={}, direction={}, result={}, 逆向止损加仓（{}张）"
+                        , LOG_MARK, track, ContractDirectionEnum.get(position.getDirection()).getNegate()
+                        , result, lossVolume);
+                // 订单完成检查
+            } while (!this.orderCompleteCheck(track, result, 0));
         }
         return Result.buildSuccess();
     }
@@ -381,6 +390,10 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      **/
     private boolean orderCompleteCheck(Track track, Result result, int count) {
         if (count > track.getHedgeConfig().getTimeout()) {
+            // 超时未成功, 撤销订单
+            result = this.cancel(track);
+            logger.info("[{}] track={}, result={}, 超时未成功, 撤销订单"
+                    , LOG_MARK, track, result);
             return false;
         }
         String orderId = JSONObject.parseObject(result.getData().toString()).getLong("order_id") + "";
@@ -398,11 +411,11 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
      *
      * @author 陈晨
      * @date 2020/9/26 13:30
-     * @param track, position
+     * @param track, lossVolume
      **/
-    private boolean isStopTrade(Track track, Position position) {
-        // 停止交易 && 平仓张数 > basis, 则不再向下追仓
-        return track.isStopTrade() && position.getVolume().compareTo(BigDecimal.valueOf(track.getHedgeConfig().getBasisVolume())) > 0;
+    private boolean isStopTrade(Track track, long lossVolume) {
+        // 停止交易 && 止损至仓张数 <= basis * 2, 则不再向下追仓
+        return track.isStopTrade() && lossVolume <= track.getHedgeConfig().getBasisVolume() * 2;
     }
 
     /**
@@ -416,7 +429,7 @@ public abstract class AbstractHedgeService extends BaseService implements HedgeS
     private Result stopTradeLittleLossClose(Track track, Position position) {
         if (position == null
                 || !track.isStopTrade()
-                || position.getVolume().compareTo(BigDecimal.valueOf(track.getHedgeConfig().getBasisVolume())) > 0) {
+                || position.getVolume().compareTo(BigDecimal.valueOf(track.getHedgeConfig().getBasisVolume() * 2)) > 0) {
             return Result.buildSuccess();
         }
         // 1, 止损平仓（所有张）
